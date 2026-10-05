@@ -57,9 +57,9 @@ async def test_update_l2_appends_facts_from_chunk(memory_dir, monkeypatch):
     async def fake_llm(*, system_prompt, user_prompt, **kwargs):
         # Return one valid fact per call, citing a ref in the chunk.
         if "01ABC" in user_prompt:
-            return '{"facts": [{"text": "uses FSRS scheduling", "section": "Mastery", "refs": ["chat:01ABC"]}]}'
+            return '{"facts": [{"text": "uses FSRS scheduling", "section": "Dominio", "refs": ["chat:01ABC"]}]}'
         if "01DEF" in user_prompt:
-            return '{"facts": [{"text": "scheduler customisation", "section": "Mastery", "refs": ["chat:01DEF"]}]}'
+            return '{"facts": [{"text": "scheduler customisation", "section": "Dominio", "refs": ["chat:01DEF"]}]}'
         return '{"facts": []}'
 
     # Force a tiny chunker so each entity ends up in its own chunk.
@@ -82,7 +82,7 @@ async def test_update_l2_appends_facts_from_chunk(memory_dir, monkeypatch):
     assert result.facts_added >= 1
     assert not result.no_new_input
     md = (memory_dir / "L2" / "chat.md").read_text(encoding="utf-8")
-    assert "## Mastery" in md
+    assert "## Dominio" in md
     assert "FSRS" in md or "scheduler" in md
 
 

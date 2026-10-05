@@ -1,0 +1,6 @@
+short_description: "Entrega al estudiante una tarjeta que reabre una conversación de estudio existente, con el mensaje de apertura ya redactado."
+when_to_use: "Cuando quiera continuar algo que ya estaba haciendo en un tema. Necesita un session_id de mastery_sessions."
+input_format: "{\"path_id\": \"...\", \"session_id\": \"...\", \"opening_message\": \"primer mensaje con su propia voz\", \"module\": \"id / nombre / número de lección opcional\", \"reason\": \"una línea sobre por qué ahora\"}"
+guideline: "Escribe el mensaje de apertura como lo escribiría el estudiante, en su idioma, y nombra la lección en él cuando haya pedido una — el tutor del otro lado lo lee antes de decidir qué enseñar. Luego di en una frase lo que encontrará allí. No describas el botón, no afirmes que lo estás abriendo y no empieces a enseñar el tema en este chat."
+note: "Produce una tarjeta en la que el estudiante hace clic; nada navega por sí solo y ningún progreso cambia. Los ids se validan primero, así que una tarjeta nunca apunta a una lección o conversación que no exista."
+phase: "synthesis"

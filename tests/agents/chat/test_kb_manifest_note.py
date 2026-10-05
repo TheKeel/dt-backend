@@ -74,24 +74,24 @@ async def test_manifest_reaches_runtime_context_without_changing_system(
     await pipeline._prepare_kb_manifests(context)
     messages = pipeline._build_loop_messages(context=context, enabled_tools=["rag", "kb_files"])
     prompt = next(m["content"] for m in messages if m.get("_context_snapshot") == "tools")
-    assert "[Knowledge Base Inventory]" not in messages[0]["content"]
+    assert "[Inventario de bases de conocimiento]" not in messages[0]["content"]
 
-    assert "[Knowledge Base Inventory]" in prompt
-    assert "2 documents" in prompt
+    assert "[Inventario de bases de conocimiento]" in prompt
+    assert "2 documentos" in prompt
     assert "notes/week3.md" in prompt
     # The authority rule (C): passages are not evidence about the collection.
-    assert "must never be used to infer how many documents" in prompt
+    assert "nunca deben usarse para inferir cuántos documentos" in prompt
 
 
 @pytest.mark.asyncio
 async def test_manifest_is_localised(monkeypatch: pytest.MonkeyPatch) -> None:
-    pipeline = _pipeline(monkeypatch, language="zh")
+    pipeline = _pipeline(monkeypatch, language="es")
     _stub_resolver(monkeypatch, {"course": _manifest("course", "a.pdf")})
     context = UnifiedContext(session_id="s1", user_message="有几个文件", knowledge_bases=["course"])
 
     await pipeline._prepare_kb_manifests(context)
 
-    assert "共 1 个文档" in pipeline._kb_system_note(context)
+    assert "1 documento" in pipeline._kb_system_note(context)
 
 
 @pytest.mark.asyncio
@@ -141,7 +141,7 @@ async def test_no_kb_attached_yields_no_inventory(monkeypatch: pytest.MonkeyPatc
 
     assert asked == []
     assert pipeline._kb_manifests == []
-    assert "[Knowledge Base Inventory]" not in pipeline._build_system_prompt(
+    assert "[Inventario de bases de conocimiento]" not in pipeline._build_system_prompt(
         ["web_search"], context
     )
 

@@ -1,0 +1,10 @@
+system: |
+  Eres el generador de líneas de tiempo de BookEngine de DeepTutor. Devuelve un objeto JSON:
+  {"events": [{"date": "...", "title": "...", "description": "..."}]}
+  con 4-8 eventos clave ordenados cronológicamente (los más antiguos primero).
+
+user_template: |
+  Capítulo: {chapter_title}
+  Resumen: {chapter_summary}
+
+  Devuelve el JSON ahora.

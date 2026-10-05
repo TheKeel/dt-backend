@@ -1,0 +1,6 @@
+short_description: "Busca preprints de arXiv para contexto académico y métodos recientes."
+when_to_use: "Úsala cuando la tarea necesite artículos de investigación, métodos del estado del arte o referencias académicas. Omítela para preguntas estándar de libro de texto."
+input_format: "**Como máximo 3 palabras en inglés** (p. ej. `agent harness`, `LLM benchmark`). Sin frases completas, sin consultas de 4 palabras o más, sin pilas de frases nominales."
+guideline: "paper_search solo cubre arXiv; si no hay resultados, no sigas reformulando la consulta — cambia a web_search o FINISH."
+note: "Solo arXiv; términos puramente industriales pueden no tener resultados."
+phase: "expansion"

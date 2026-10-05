@@ -176,7 +176,7 @@ async def test_run_injects_kb_seed_into_turn_context(
 
     # Passages landed in the turn context the very first LLM call saw.
     turn_context = client.calls[0]["messages"][-1]["content"]
-    assert "[Knowledge Base Context]" in turn_context
+    assert "[Contexto de base de conocimiento]" in turn_context
     assert "## uc_berkeley" in turn_context
     assert _PASSAGE in turn_context
 
@@ -266,7 +266,7 @@ async def test_run_skips_seed_without_kb(monkeypatch: pytest.MonkeyPatch) -> Non
     first_call_text = "\n".join(
         m["content"] for m in client.calls[0]["messages"] if isinstance(m.get("content"), str)
     )
-    assert "[Knowledge Base Context]" not in first_call_text
+    assert "[Contexto de base de conocimiento]" not in first_call_text
     result = [e for e in events if e.type == StreamEventType.RESULT][-1]
     assert result.metadata["completed"] is True
 
@@ -294,7 +294,7 @@ async def test_run_degrades_gracefully_when_seed_retrieval_fails(
     first_call_text = "\n".join(
         m["content"] for m in client.calls[0]["messages"] if isinstance(m.get("content"), str)
     )
-    assert "[Knowledge Base Context]" not in first_call_text
+    assert "[Contexto de base de conocimiento]" not in first_call_text
     result = [e for e in events if e.type == StreamEventType.RESULT][-1]
     assert result.metadata["completed"] is True
 
@@ -322,7 +322,7 @@ async def test_run_skips_seed_result_that_needs_reindex(
     first_call_text = "\n".join(
         m["content"] for m in client.calls[0]["messages"] if isinstance(m.get("content"), str)
     )
-    assert "[Knowledge Base Context]" not in first_call_text
+    assert "[Contexto de base de conocimiento]" not in first_call_text
 
 
 @pytest.mark.asyncio
@@ -346,5 +346,5 @@ async def test_run_clips_oversized_seed_passages(monkeypatch: pytest.MonkeyPatch
     assert "...[truncated]" in turn_context
     # The block contributes at most the per-KB budget plus the header,
     # section title, truncation marker, and the trailing template line.
-    seed_block = turn_context.split("[Knowledge Base Context]", 1)[1]
+    seed_block = turn_context.split("[Contexto de base de conocimiento]", 1)[1]
     assert len(seed_block) < KB_SEED_CHARS_PER_KB + 400

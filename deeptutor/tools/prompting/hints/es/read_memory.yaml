@@ -1,0 +1,6 @@
+short_description: "Lee la memoria persistente del usuario: resumen reciente de aprendizaje, perfil, alcance de conocimiento y preferencias explícitas."
+when_to_use: "Cuando el tono, la profundidad, los ejemplos o las recomendaciones de la respuesta puedan personalizarse significativamente para ESTE usuario. Omítela para preguntas puramente fácticas / computacionales / de traducción."
+input_format: "Sin parámetros. Devuelve los cuatro documentos L3 concatenados."
+guideline: "Llama como máximo una vez por turno. Usa la memoria para dar forma a CÓMO explicas — ejemplos, profundidad, seguimientos. NO cites la memoria de vuelta al usuario como contenido fáctico."
+note: "Cuando el usuario aún no ha acumulado memoria, devuelve un aviso `(No memory available...)` — trátala como una pregunta genérica."
+phase: "exploration"

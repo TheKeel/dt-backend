@@ -160,8 +160,10 @@ class TestPromptManager:
 
         # They should be equal but not the same object
         assert prompts1 == prompts2
-        # After reload, cache should have fresh entry
-        cache_key = "research_pipeline_en"
+        # After reload, cache should have fresh entry (key uses normalized locale)
+        from deeptutor.services.config import parse_language
+
+        cache_key = f"research_pipeline_{parse_language('en')}"
         assert cache_key in pm._cache
 
 

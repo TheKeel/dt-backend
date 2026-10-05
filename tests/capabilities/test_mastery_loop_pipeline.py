@@ -44,8 +44,7 @@ def _mastery_context() -> UnifiedContext:
 @pytest.mark.parametrize(
     ("language", "tutor_phrase", "chat_phrase"),
     [
-        ("zh", "掌握式导师", "你是 DeepTutor"),
-        ("en", "mastery tutor", "You are DeepTutor"),
+        ("es", "tutor personal de dominio", "Eres DeepTutor"),
     ],
 )
 def test_tutor_identity_replaces_chat_identity(
@@ -83,7 +82,7 @@ def test_playbook_still_reaches_a_mastery_turn_running_on_chat() -> None:
     block = MasteryLoopCapability().system_block(context, language="en", prompts={})
 
     assert block is not None
-    assert "mastery tutor" in block.content
+    assert "tutor personal de dominio" in block.content
     assert "mastery_quiz" in block.content
 
 

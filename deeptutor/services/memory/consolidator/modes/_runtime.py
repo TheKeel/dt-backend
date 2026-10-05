@@ -80,14 +80,13 @@ def _lang_code(language: str) -> str:
 def _resolve_prompt_file(name: str, locale: str) -> Path:
     """Path to *name*.yaml in *locale*, else in any locale that ships it.
 
-    ``load_prompt`` used to index the locale directory directly, so a locale
-    with no prompts of its own was a FileNotFoundError rather than a fallback.
-    A partially translated tree must degrade to English scaffolding, not crash.
+    Spanish-only: the ``es`` tree is canonical; legacy ``en``/``zh`` trees
+    are consulted only as fallback before raising.
     """
     preferred = _PROMPTS_DIR / locale / f"{name}.yaml"
     if preferred.exists():
         return preferred
-    for other in ("en", "es", "zh"):
+    for other in ("es", "en", "zh"):
         if other == locale:
             continue
         candidate = _PROMPTS_DIR / other / f"{name}.yaml"

@@ -1,0 +1,6 @@
+short_description: "Carga el texto completo de una fuente adjunta (registro de cuaderno, páginas de libro, sesión de historial, entrada del banco de preguntas, documento adjunto) por su id de manifiesto."
+when_to_use: "Llama SOLO cuando la vista previa del manifiesto «Fuentes Adjuntas» no baste para responder la pregunta del usuario. No vuelvas a traer fuentes cuya vista previa ya cubra la pregunta."
+input_format: "{\"source_id\": \"el id exacto del manifiesto (p. ej. nb-... / bk-... / hs-... / qb-... / at-...)\"}."
+guideline: "Copia source_id literalmente del manifiesto — nunca inventes ni adivines uno. Carga una fuente por llamada; emite llamadas separadas si necesitas varias fuentes."
+note: "Cuando no hay ninguna fuente adjunta, esta herramienta no aparecerá; no pidas al usuario que aclare «qué material»."
+phase: "exploration"

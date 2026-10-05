@@ -1,8 +1,8 @@
 """Mastery Path LLM prompt templates.
 
-The prompt text lives in ``deeptutor/learning/prompts/{en,zh}.yaml`` so the
-capability and API can follow the active UI language. The module-level constants
-remain as the Chinese defaults for older tests/imports.
+The prompt text lives in ``deeptutor/learning/prompts/es.yaml`` (Spanish-only).
+The module-level constants remain as the Spanish defaults for older
+tests/imports.
 """
 
 from __future__ import annotations
@@ -29,12 +29,11 @@ def _get_nested(data: dict[str, Any], path: str, default: str = "") -> str:
 
 
 @lru_cache(maxsize=8)
-def get_learning_prompts(language: str = "zh") -> dict[str, Any]:
-    """Load localized Mastery Path LLM prompts."""
+def get_learning_prompts(language: str = "es") -> dict[str, Any]:
+    """Load localized Mastery Path LLM prompts (Spanish-only)."""
     lang = parse_language(language)
-    # Regional codes reuse their base locale's file ("zh-tw" -> zh.yaml); a
-    # language with no file of its own lands on English, not Chinese (#712).
-    candidates = dict.fromkeys([lang, lang.split("-", 1)[0], "en", "zh"])
+    # Spanish-only: the es file is canonical; en/zh remain as legacy fallback.
+    candidates = dict.fromkeys([lang, lang.split("-", 1)[0], "es", "en", "zh"])
     for candidate in candidates:
         path = _PROMPT_DIR / f"{candidate}.yaml"
         if path.exists():
@@ -50,10 +49,8 @@ def notebook_generation_prompts(language: str, records_json: str) -> tuple[str, 
     prompts = get_learning_prompts(language)
     system_prompt = _get_nested(prompts, "notebook.system", NOTEBOOK_SYSTEM)
     user_template = _get_nested(prompts, "notebook.user", NOTEBOOK_USER)
-    # Only en/zh ship prompt files, so a Japanese learner is handed English
-    # scaffolding. The directive — the same one book, quiz and Deep Research
-    # already append — is what makes the answer come back in the language that
-    # was actually asked for (#712).
+    # Spanish-only scaffolding. The directive is what makes the answer come
+    # back in the language that was actually asked for (#712).
     system_prompt = append_language_directive(system_prompt, parse_language(language))
     return system_prompt, user_template.format(records_json=records_json)
 
@@ -77,8 +74,7 @@ _MUST_COVER_HEADERS = {
 def _must_cover_block(language: str, must_cover: list[str]) -> str:
     if not must_cover:
         return ""
-    zh = parse_language(language).lower().startswith("zh")
-    header = _MUST_COVER_HEADERS["zh" if zh else prompt_locale(language)]
+    header = _MUST_COVER_HEADERS.get(prompt_locale(language), _MUST_COVER_HEADERS["es"])
     listed = "\n".join(f"- {name}" for name in must_cover[:40])
     return f"\n{header}\n{listed}\n"
 
@@ -117,24 +113,24 @@ def topic_generation_prompts(
 
 
 def default_module_name(language: str, index: int) -> str:
-    template = prompt_text(language, "notebook.default_module_name", "模块 {index}")
+    template = prompt_text(language, "notebook.default_module_name", "Módulo {index}")
     return template.format(index=index)
 
 
-DIAGNOSTIC_SYSTEM = prompt_text("zh", "diagnostic.system")
-DIAGNOSTIC_USER = prompt_text("zh", "diagnostic.user")
-EXPLAIN_SYSTEM = prompt_text("zh", "explain.system")
-EXPLAIN_USER = prompt_text("zh", "explain.user")
-FEYNMAN_SYSTEM = prompt_text("zh", "feynman.system")
-FEYNMAN_USER = prompt_text("zh", "feynman.user")
-PRACTICE_SYSTEM = prompt_text("zh", "practice.system")
-PRACTICE_USER = prompt_text("zh", "practice.user")
-ERROR_DIAGNOSIS_SYSTEM = prompt_text("zh", "error_diagnosis.system")
-ERROR_DIAGNOSIS_USER = prompt_text("zh", "error_diagnosis.user")
-REVIEW_SYSTEM = prompt_text("zh", "review.system")
-REVIEW_USER = prompt_text("zh", "review.user")
-NOTEBOOK_SYSTEM = prompt_text("zh", "notebook.system")
-NOTEBOOK_USER = prompt_text("zh", "notebook.user")
+DIAGNOSTIC_SYSTEM = prompt_text("es", "diagnostic.system")
+DIAGNOSTIC_USER = prompt_text("es", "diagnostic.user")
+EXPLAIN_SYSTEM = prompt_text("es", "explain.system")
+EXPLAIN_USER = prompt_text("es", "explain.user")
+FEYNMAN_SYSTEM = prompt_text("es", "feynman.system")
+FEYNMAN_USER = prompt_text("es", "feynman.user")
+PRACTICE_SYSTEM = prompt_text("es", "practice.system")
+PRACTICE_USER = prompt_text("es", "practice.user")
+ERROR_DIAGNOSIS_SYSTEM = prompt_text("es", "error_diagnosis.system")
+ERROR_DIAGNOSIS_USER = prompt_text("es", "error_diagnosis.user")
+REVIEW_SYSTEM = prompt_text("es", "review.system")
+REVIEW_USER = prompt_text("es", "review.user")
+NOTEBOOK_SYSTEM = prompt_text("es", "notebook.system")
+NOTEBOOK_USER = prompt_text("es", "notebook.user")
 
 
 __all__ = [

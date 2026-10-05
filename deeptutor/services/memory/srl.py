@@ -113,4 +113,47 @@ class ModeloEstudianteSRL:
         return matriz.get(nivel_con, {}).get(nivel_arr, "Medio (Facilitador)")
 
 
-__all__ = ["ModeloEstudianteSRL", "default_srl_variables"]
+#: Estrategia de andamiaje -> dificultad que el motor impone en mastery_quiz.
+#: La matriz decide; el LLM propone contenido pero no elige nivel.
+ESTRATEGIA_A_DIFICULTAD = {
+    "Máximo (Directivo/Explicativo)": "easy",
+    "Alto (Guía Estructurada)": "easy",
+    "Alto (Monitoreo Estricto)": "easy",
+    "Medio (Facilitador)": "medium",
+    "Medio (Sugerencias Orientadas)": "medium",
+    "Medio (Retos con Soporte)": "medium",
+    "Bajo (Autónomo Supervisado)": "hard",
+    "Bajo (Desafíos Autónomos)": "hard",
+    "Mínimo (Laissez-faire / Mentoría)": "hard",
+}
+
+_DIFICULTAD_POR_DEFECTO = "medium"
+
+
+def dificultad_por_estrategia(estrategia: str | None) -> str:
+    """Dificultad autoritativa para una estrategia de andamiaje.
+
+    Desconocida o ausente -> medium, nunca vacío: la pregunta siempre
+    lleva badge aunque el perfil SRL aún no exista.
+    """
+    if not isinstance(estrategia, str):
+        return _DIFICULTAD_POR_DEFECTO
+    return ESTRATEGIA_A_DIFICULTAD.get(estrategia.strip(), _DIFICULTAD_POR_DEFECTO)
+
+
+def scaffolding_para_estrategia(estrategia: str | None) -> dict[str, str]:
+    """Bloque scaffolding para exponer en mastery_status y auditar overrides."""
+    dificultad = dificultad_por_estrategia(estrategia)
+    return {
+        "estrategia": estrategia if isinstance(estrategia, str) and estrategia.strip() else "Medio (Facilitador)",
+        "difficulty": dificultad,
+    }
+
+
+__all__ = [
+    "ESTRATEGIA_A_DIFICULTAD",
+    "ModeloEstudianteSRL",
+    "default_srl_variables",
+    "dificultad_por_estrategia",
+    "scaffolding_para_estrategia",
+]

@@ -1,0 +1,6 @@
+short_description: "Llama a un modelo de razonamiento dedicado para un subproblema difícil."
+when_to_use: "Úsala cuando el contexto actual sea ambiguo, haya que sintetizar múltiples pasos o un subproblema difícil necesite un análisis más profundo."
+input_format: "Una pregunta de razonamiento enfocada más contexto de apoyo opcional."
+guideline: "Reserva el razonamiento profundo para cuellos de botella donde la recuperación simple o el cálculo no basten."
+note: "Los buenos prompts de razonamiento son específicos; incluye solo el contexto necesario para el subproblema."
+phase: "synthesis"

@@ -1,0 +1,14 @@
+# Mensajes de estado de la capacidad Visualize (Español)
+# Cargado por StatusI18n desde la sección `status:`.
+status:
+  analyzing: "Analizando requisitos de visualización..."
+  generating: "Generando código de visualización..."
+  manim_code_prepared: "Código Manim preparado."
+  manim_rendering: "Renderizando {mode} con calidad={quality}."
+  manim_retry: "Reintento {attempt}: {error}"
+  manim_artifacts_one: "Preparado {count} artefacto."
+  manim_artifacts_many: "Preparados {count} artefactos."
+  llm_call_failed: "Falló la llamada al LLM."
+  tool_calling_disabled: "La llamada a herramientas está desactivada para {target}, pero una visualización solo llega al lienzo mediante la llamada a la herramienta submit_visualization. Actívala en Ajustes → Modelos → LLM → Capacidades → Llamada a herramientas → Admitido."
+  no_payload: "El agente de visualización terminó sin un contenido válido para el lienzo. Un modelo de razonamiento puede gastar la mayor parte de su presupuesto de salida en el pensamiento interno antes de escribir la llamada a submit_visualization, que queda cortada a mitad de argumento. Si se repite, aumenta Máx. tokens para Visualizar en Ajustes → Capacidades → Visualizar."
+  no_payload_tool_calling_disabled: "No se envió ninguna visualización: la llamada a herramientas está desactivada para {target}, así que el modelo no pudo llamar a submit_visualization — la única vía para entregar contenido al lienzo. Los servidores locales (LM Studio, Ollama, vLLM, llama.cpp) la traen desactivada por defecto; declara el modelo como compatible con herramientas en Ajustes → Modelos → LLM → Capacidades → Llamada a herramientas → Admitido y vuelve a generar la visualización."

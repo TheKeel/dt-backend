@@ -323,7 +323,7 @@ class TestManifestEnumeratesIma:
 
         assert not manifest.enumerable
         assert manifest.unavailable == UNAVAILABLE_REMOTE
-        assert "remote server" in render_manifest_report(manifest, language="en")
+        assert "servidor remoto" in render_manifest_report(manifest, language="es")
 
     def test_a_reader_that_raises_is_treated_as_unreachable(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -348,4 +348,4 @@ class TestManifestEnumeratesIma:
 
         assert manifest.enumerable
         assert manifest.total == 0
-        assert "no documents" in render_manifest_report(manifest, language="en")
+        assert "no tiene documentos" in render_manifest_report(manifest, language="es")

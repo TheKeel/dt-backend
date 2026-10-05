@@ -13,6 +13,10 @@ from deeptutor.core.tool_protocol import ToolAlias, ToolPromptHints
 ToolHintEntry = tuple[str, ToolPromptHints]
 
 _GUIDELINE_HEADER = {
+    "es": (
+        "**Decide de forma autónoma qué herramienta usar** según el subobjetivo "
+        "actual y la evidencia recogida hasta ahora. Considera todas las opciones disponibles:"
+    ),
     "en": (
         "**Autonomously decide which tool to use** based on the current sub-goal "
         "and the evidence gathered so far. Consider all available options:"
@@ -21,6 +25,13 @@ _GUIDELINE_HEADER = {
 }
 
 _PHASE_LABELS = {
+    "es": {
+        "exploration": "Fase 1: Exploración",
+        "expansion": "Fase 2: Ampliación",
+        "synthesis": "Fase 3: Síntesis",
+        "verification": "Fase 4: Verificación",
+        "other": "Otras herramientas",
+    },
     "en": {
         "exploration": "Phase 1: Exploration",
         "expansion": "Phase 2: Expansion",
@@ -41,21 +52,23 @@ _PHASE_ORDER = ["exploration", "expansion", "synthesis", "verification", "other"
 
 
 def _normalize_language(language: str) -> str:
-    normalized = language.lower()
+    normalized = (language or "").strip().lower()
+    if normalized.startswith("es") or normalized in {"", "spanish", "español", "espanol"}:
+        return "es"
     if normalized.startswith("zh"):
-        return "zh"
+        return "es"
     if normalized.startswith("en"):
-        return "en"
-    return normalized
+        return "es"
+    return "es"
 
 
-def load_prompt_hints(tool_name: str, language: str = "en") -> ToolPromptHints:
-    """Load per-tool prompt hints from YAML with zh/en fallback."""
+def load_prompt_hints(tool_name: str, language: str = "es") -> ToolPromptHints:
+    """Load per-tool prompt hints from YAML with es fallback."""
     normalized_language = _normalize_language(language)
     base_dir = Path(__file__).parent / "hints"
     candidates = [base_dir / normalized_language / f"{tool_name}.yaml"]
-    if normalized_language != "en":
-        candidates.append(base_dir / "en" / f"{tool_name}.yaml")
+    if normalized_language != "es":
+        candidates.append(base_dir / "es" / f"{tool_name}.yaml")
 
     for path in candidates:
         if not path.is_file():
@@ -89,7 +102,7 @@ def load_prompt_hints(tool_name: str, language: str = "en") -> ToolPromptHints:
 class ToolPromptComposer:
     """Render prompt metadata into reusable prompt fragments."""
 
-    def __init__(self, language: str = "en") -> None:
+    def __init__(self, language: str = "es") -> None:
         self.language = _normalize_language(language)
 
     def format_list(self, hints: list[ToolHintEntry]) -> str:
@@ -107,8 +120,8 @@ class ToolPromptComposer:
         Tools without a ``short_description`` are skipped entirely so the
         block never carries empty bullets.
         """
-        when_label = "When to use" if self.language != "zh" else "适用场景"
-        input_label = "Input" if self.language != "zh" else "参数格式"
+        when_label = "Cuándo usar" if self.language == "es" else "When to use"
+        input_label = "Entrada" if self.language == "es" else "Input"
         blocks: list[str] = []
         for name, hint in hints:
             if not hint.short_description:
@@ -142,7 +155,7 @@ class ToolPromptComposer:
 
         guidelines = [f"  - `{name}` {hint.guideline}" for name, hint in hints if hint.guideline]
         if guidelines:
-            header = _GUIDELINE_HEADER.get(self.language, _GUIDELINE_HEADER["en"])
+            header = _GUIDELINE_HEADER.get(self.language, _GUIDELINE_HEADER["es"])
             parts.append(f"{header}\n" + "\n".join(guidelines))
 
         notes = [f"- {hint.note}" for _, hint in hints if hint.note]
@@ -189,7 +202,7 @@ class ToolPromptComposer:
             elif hint.short_description:
                 grouped[phase].append(f"- `{name}`: {hint.short_description}")
 
-        labels = _PHASE_LABELS.get(self.language, _PHASE_LABELS["en"])
+        labels = _PHASE_LABELS.get(self.language, _PHASE_LABELS["es"])
         sections: list[str] = []
         for phase in _PHASE_ORDER:
             items = grouped.get(phase) or []
@@ -204,7 +217,7 @@ def compose_prompt_text(
     hints: list[ToolHintEntry],
     *,
     format: str = "list",
-    language: str = "en",
+    language: str = "es",
     **opts: Any,
 ) -> str:
     """Render *hints* in the named format.

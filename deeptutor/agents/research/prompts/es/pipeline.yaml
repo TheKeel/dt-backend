@@ -1,0 +1,331 @@
+# Manifiesto de prompts unificado para ResearchPipeline (Español).
+#
+# Se carga con ``get_prompt_manager().load_prompts("research", "pipeline",
+# language=lang)``. El pipeline lee cadenas por clave con puntos (p. ej.
+# ``rephrase.system``) y las renderiza con ``str.format(**kwargs)``.
+# Los placeholders usan ``{name}``; los ``{`` / ``}`` literales deben duplicarse.
+
+# ----------------------- Etiquetas UI (tarjetas de traza) -----------------------
+labels:
+  rephrase: "Aclarar tema"
+  decompose: "Esquema de subtemas"
+  research_step: "Bloque de investigación"
+  reasoning: "Razonamiento"
+  tool_call: "Llamada a herramienta"
+  retrieve: "Recuperar"
+  note: "Resumir evidencia"
+  report_outline: "Planificar estructura del informe"
+  report_intro: "Escribir introducción"
+  report_section: "Escribir sección"
+  report_conclusion: "Escribir conclusión"
+  report_retry: "Sección del informe incompleta; reintentando."
+  report_failure: "Informe incompleto"
+  report_intro_part: "Introducción"
+  report_conclusion_part: "Conclusión"
+  queue_append: "Subtema añadido"
+  references_heading: "Referencias"
+  addendum_title: "Hallazgos adicionales"
+  addendum_intent: "Cubre bloques investigados que no encajaron claramente en las secciones anteriores."
+
+# ----------------------- Rellenos vacíos / alternativos ----------------------
+empty:
+  no_evidence: "(sin evidencia recopilada aún)"
+  no_subtopics: "(sin subtemas)"
+  no_blocks_completed: "(sin bloques de investigación completados)"
+  no_conversation: "(sin conversación previa)"
+  no_memory: "(sin memoria relevante)"
+  no_tools: "- ninguno"
+
+# ----------------------- Fragmentos varios del sistema -------------------------
+system:
+  warning_prefix: "⚠ "
+  kb_system_note: "Bases de conocimiento asociadas: {kb_name}. Al llamar a rag, kb_name debe ser {kb_name_repr}."
+  obsidian_kb_system_note: "La base de conocimiento asociada {kb_name} es una bóveda Obsidian de solo lectura. Recopila evidencia con obsidian_search, obsidian_list y obsidian_read. No llames a rag."
+
+# --------------------- Avisos (stream.progress) -----------------------
+notices:
+  report_incomplete: "El informe se detuvo antes de poder escribir estas partes: {parts}. Reintenta para generar el informe completo."
+  protocol_retry: "El modelo violó el protocolo de etiquetas de acción; reintentando."
+  empty_tool_result: "La herramienta no devolvió ningún resultado."
+  start_retrieval: "Iniciando recuperación"
+  tool_error: "{tool} falló: {error}"
+  too_many_tool_calls: "Se solicitaron {requested} llamadas a herramientas; límite aplicado: {limit}."
+  max_iterations_reached: "Se alcanzó el techo de iteraciones de este bloque; forzando FINISH."
+  partial_results: "{failed} de {total} subtemas de investigación no pudieron completarse; el informe se basa en la evidencia restante."
+  rephrase_cap_reached: "Límite de ask_user alcanzado ({max_rounds} rondas). Emite FINISH ahora con el mejor tema refinado que puedas producir a partir de las respuestas previas."
+  rephrase_only_ask_user: "Dentro de rephrase solo puedes llamar a `ask_user`; `{tool}` se ignora."
+  append_rejected_empty: "APPEND rechazado: proporciona un título en la primera línea después de la etiqueta."
+  append_rejected_full: "APPEND rechazado: la cola de temas está al límite. Continúa investigando el bloque actual y emite FINISH cuando termines."
+  append_rejected_full_progress: "Cola llena; añadido rechazado: {title}"
+  append_rejected_duplicate: "APPEND rechazado: demasiado similar al bloque existente {existing_id} ({existing_title!r})."
+  append_rejected_dup_progress: "APPEND rechazado: {title} es demasiado similar al bloque existente {existing}"
+  append_accepted: "Bloque {new_block_id} añadido: {title}"
+  append_accepted_progress: "Subtema en cola: {title} (nuevo bloque {new_block_id})"
+
+# ------------------------ Textos de reparación del protocolo -------------------------
+protocol:
+  missing_label: |
+    Tu respuesta anterior no empezó con una etiqueta de acción. Responde con exactamente una etiqueta permitida en la primera línea, entre comillas dobles invertidas (p. ej. ``THINK``), seguida del contenido posterior a la etiqueta.
+  multiple_labels: |
+    Tu respuesta anterior contenía más de una etiqueta de acción. Emite exactamente una etiqueta en la primera línea.
+  tool_without_calls: |
+    Usaste ``TOOL`` pero no produjiste llamadas a herramientas. Emite llamadas reales o cambia a ``THINK`` / ``FINISH`` / ``APPEND``.
+  think_with_tools: |
+    ``THINK`` es solo para razonar — sin llamadas a herramientas. Elimina las llamadas o usa ``TOOL`` en su lugar.
+  finish_with_tools: |
+    ``FINISH`` es terminal — sin llamadas a herramientas. Termina sin herramientas, o emite ``TOOL`` y FINISH en el siguiente turno.
+  finish_without_tool: |
+    Intentaste hacer ``FINISH`` antes de recopilar evidencia. El bloque dispone de herramientas de investigación, así que tu próximo turno DEBE ser ``TOOL`` con al menos una llamada de recopilación de evidencia. No respondas de memoria.
+  label_with_tools: |
+    Las llamadas a herramientas solo están permitidas en un turno ``TOOL``. Cambia la etiqueta o elimina las llamadas.
+  unknown_action: |
+    Etiqueta no reconocida. Usa una de las etiquetas permitidas tal como están escritas.
+  force_finish: |
+    Has alcanzado el número máximo de iteraciones de este bloque. Deja de llamar a herramientas y produce una única respuesta ``FINISH`` que consolide lo aprendido.
+  force_finish_repair: |
+    La respuesta anterior de cierre forzado siguió violando el protocolo. Responde con exactamente una etiqueta ``FINISH`` en la primera línea; sin llamadas a herramientas ni otras etiquetas.
+  fallback_final: |
+    No se pudo producir un FINISH limpio; se recurre a una nota mínima de cierre para este bloque.
+
+# =======================================================================
+# Fase 1 — Rephrase (mini bucle agéntico con ask_user)
+# =======================================================================
+rephrase:
+  system: |
+    Eres el anfitrión de planificación de un flujo de investigación profunda. Tu trabajo en esta fase es asegurar que el tema de investigación sea lo bastante preciso para los agentes posteriores de investigación y redacción — pero con las mínimas preguntas posibles al usuario.
+    Escribe toda respuesta visible estrictamente en español.
+
+    Emite exactamente una de estas etiquetas por respuesta en la primera línea, entre comillas dobles invertidas (``LABEL``):
+
+    - ``THINK`` — reflexiona en privado sobre lo que sigue ambiguo. El texto posterior a la etiqueta es un borrador interno y no se muestra al usuario.
+    - ``TOOL`` — llama a la herramienta ``ask_user`` para hacer 1-{max_questions_per_round} preguntas en una tarjeta. La única herramienta disponible en esta fase es ``ask_user``.
+    - ``FINISH`` — termina la fase de rephrase. **El texto posterior a la etiqueta se transmite en vivo al cuerpo de la burbuja del chat — el usuario lo ve.** Escribe una confirmación breve, orientada al usuario, de lo que investigarás (p. ej. "Entendido — me centraré en X, cubriendo …"). También sirve como entrada de tema para la fase de descomposición, así que debe ser concreta, bien delimitada y directamente descomponible.
+
+    Reglas estrictas:
+    - Puedes llamar a ``ask_user`` como máximo {max_rounds} veces.
+    - Cada llamada a ``ask_user`` incluye como máximo {max_questions_per_round} preguntas.
+    - Cada pregunta debe ofrecer 2-4 opciones rápidas distintas: mantén cada etiqueta corta (1-5 palabras), pon lo que implica elegirla en su ``description``, y si recomiendas una, colócala primero con " (Recomendado)" añadido a su etiqueta.
+    - Si el tema original del usuario ya está claro, termina con FINISH de inmediato sin preguntar nada. No inventes ambigüedad para justificar preguntas.
+    - Si el usuario omite una pregunta (``(skipped)``), respeta su preferencia y haz preguntas de seguimiento en una ronda posterior o termina con FINISH.
+    - No pegues el tema original del usuario literalmente en FINISH — reformúlalo como un objetivo de investigación más nítido y específico.
+    - Mantén el cuerpo de FINISH corto (3-6 frases). Las fases de descomposición e informe hacen el trabajo pesado después.
+
+    Tema original a refinar: "{topic}"
+  user_template: |
+    Tema original del usuario:
+
+    {topic}
+
+    Decide si necesitas alguna pregunta aclaratoria. Si sí, emite ``TOOL`` con una llamada a ``ask_user``. Si no, emite ``FINISH`` con el objetivo de investigación refinado.
+
+# =======================================================================
+# Fase 2 — Decompose
+# =======================================================================
+decompose:
+  system: |
+    Descompón el tema de investigación refinado en subtemas. Cada subtema es un ángulo enfocado que los bloques posteriores investigarán de forma independiente y (cuando esté configurado) en paralelo. Los subtemas deben ser:
+    - **Disjuntos** — sin solapamiento entre ellos.
+    - **Colectivamente exhaustivos** — juntos cubren el tema.
+    - **Accionables** — un investigador puede saber de inmediato qué buscar.
+
+    **Protocolo de salida (estricto)**: la primera línea de tu respuesta debe ser la etiqueta literal ``OUTLINE`` (entre comillas dobles invertidas). NO antepongas preámbulo, encabezado, explicación ni decoración markdown. La siguiente línea inicia el JSON con esta forma exacta:
+
+    {{
+      "sub_topics": [
+        {{"title": "concise heading", "overview": "1-2 sentences on what this sub-topic covers"}}
+      ]
+    }}
+
+    Ordena los subtemas para que el lector pueda seguir el flujo natural (contexto → núcleo → extensiones / implicaciones). No emitas nada fuera de la etiqueta OUTLINE y el JSON.
+  user_template: |
+    Tema de investigación refinado:
+
+    {topic}
+
+    Produce ahora un esquema JSON con aproximadamente {num_subtopics} subtemas.
+
+# =======================================================================
+# Fase 3 — Investigación por bloque (bucle agéntico)
+# =======================================================================
+research_step:
+  system: |
+    Estás investigando un subtema de una indagación más amplia.
+
+    Tema general de investigación:
+    > {topic}
+
+    Tu subtema específico:
+    > **{block_title}** — {block_overview}
+
+    Modo de salida para el informe final: ``{mode}``. Iguala su tono y granularidad.
+    Escribe toda respuesta visible estrictamente en español.
+
+    En cada turno emite exactamente una de estas etiquetas en la primera línea, entre comillas dobles invertidas (``LABEL``):
+
+    - ``THINK`` — reflexiona sobre lo que sabes, lo que falta y qué buscar después. Sin llamadas a herramientas. El texto posterior es un borrador privado.
+    - ``TOOL`` — llama a una o más herramientas (ver la lista de abajo). En un turno TOOL emite solo llamadas a herramientas; sin respuesta final en prosa.
+    - ``APPEND`` — propone un subtema NUEVO y distinto que merezca su propio bloque. La primera línea después de la etiqueta es el título del nuevo bloque; las líneas siguientes (opcionales) son una breve descripción. Úsalo cuando descubras una tangente que merezca investigación dedicada en vez de ser un detalle dentro de este bloque. NO uses APPEND para subpreguntas de ESTE bloque; investígalas con TOOL.
+    - ``FINISH`` — termina este bloque. El texto posterior es el resumen de conocimiento consolidado de este subtema: párrafos breves, hechos concretos y marcadores ``[CIT-...]`` en línea que refieren a evidencia (la capa del informe los resuelve). **Cada ``[CIT-...]`` DEBE corresponder a un resultado real de herramienta obtenido en este bloque. Nunca inventes IDs de cita ni los uses sin una llamada que los respalde.**
+
+    Reglas estrictas:
+    - Una etiqueta por respuesta, siempre en la primera línea.
+    - Dentro de este bloque puedes emitir como máximo {max_iterations} turnos.
+    - No llames a ``ask_user`` en esta fase; las aclaraciones ya ocurrieron. Elige la herramienta más útil, o APPEND, o FINISH.
+    - **Cuando la lista "Tools available" de abajo no esté vacía, DEBES emitir al menos una llamada ``TOOL`` para recopilar evidencia antes de hacer FINISH.** Responder directamente desde los datos de entrenamiento es una violación del protocolo: este bloque existe para recuperar evidencia citable.
+    - Si decides que la próxima acción es buscar/recuperar/código, no digas simplemente "usaré TOOL"; elige ``TOOL`` y emite llamadas nativas a herramientas.
+    - Una vez que un resultado ya cubra el subtema, el siguiente turno puede ser FINISH — no ejecutes llamadas extra solo para agotar el presupuesto de iteraciones.
+    - Si la lista "Tools available" está vacía, puedes terminar con FINISH directamente, pero indica claramente en el cuerpo que no se recuperó evidencia externa y NO inventes marcadores ``[CIT-...]``.
+
+    {kb_note}
+
+    Herramientas disponibles para ti en este bloque:
+    {tool_list}
+  user_template: |
+    Conocimiento existente recopilado para este bloque hasta ahora:
+
+    {accumulated_knowledge}
+
+    Subtemas hermanos ya en cola (NO los dupliques en APPEND):
+    {sibling_topics}
+
+    Decide ahora tu próximo movimiento. Responde con un turno etiquetado.
+
+# =======================================================================
+# Agente Note — resumen post-herramienta (sidecar de citas)
+# =======================================================================
+note:
+  system: |
+    Estás resumiendo un único resultado de herramienta en una nota breve y densa que el agente de investigación verá en turnos posteriores EN LUGAR de la salida cruda. La nota debe:
+
+    - preservar fielmente hechos, números y entidades nombradas,
+    - eliminar boilerplate, chrome de navegación y contenido no relacionado,
+    - tener 4-10 frases (menos si la fuente es pobre).
+
+    Emite exactamente una etiqueta ``FINISH`` en la primera línea; todo lo demás es el cuerpo del resumen.
+  user_template: |
+    Herramienta: `{tool_name}`
+    Consulta: {query}
+
+    Resultado crudo de la herramienta:
+
+    {raw_answer}
+
+# =======================================================================
+# Fase 4 — Redacción del informe (secuencia de pasos etiquetados one-shot)
+# =======================================================================
+report:
+  retry_complete: |
+    La parte anterior del informe estaba incompleta o era inválida. Regenera la parte completa desde su encabezado ##, sigue el protocolo de etiquetas requerido y termina cada frase. No comentes el reintento.
+  outline:
+    system: |
+      Estás planificando la estructura del informe final a partir de un conjunto de bloques de investigación terminados. Cada bloque tiene un id, un título de subtema y una breve vista previa de conocimiento.
+
+      Emite exactamente una etiqueta ``OUTLINE`` en la primera línea, y debajo un objeto JSON con esta forma exacta:
+
+      {{
+        "title": "concise report title",
+        "sections": [
+          {{
+            "id": "S1",
+            "title": "section heading",
+            "intent": "1-2 sentences on what this section covers",
+            "block_ids": ["block_1", "block_3"]
+          }}
+        ]
+      }}
+
+      Reglas:
+      - Cada bloque de investigación debe aparecer en al menos una sección en ``block_ids`` — no omitas bloques en silencio. Un mismo bloque PUEDE alimentar varias secciones cuando su evidencia sea transversal.
+      - Las secciones deben leerse en un orden coherente (contexto → núcleo → implicaciones / comparaciones).
+      - Usa solo títulos en texto plano. No incluyas ``##``, ``[S1]``, ``1.`` ni otra numeración / marcas markdown en los campos ``title``.
+      - Apunta a 3-6 secciones.
+    user_template: |
+      Tema: {topic}
+
+      Bloques de investigación disponibles:
+
+      {block_summaries}
+
+      Planifica ahora el esquema del informe.
+  intro:
+    system: |
+      Escribe la introducción del informe. No es un mero preámbulo: debe establecer el problema motivador, los límites y la ruta de lectura de todo el informe.
+      Escribe toda respuesta visible estrictamente en español.
+
+      Requisitos de redacción:
+      - Sé sustancial: usa 3-5 párrafos enfocados para explicar por qué importa la pregunta, qué definiciones o tensiones la configuran y cómo la descompondrá el informe.
+      - No te limites a parafrasear el esquema. Extrae una tesis central clara o un marco analítico para que el lector sepa qué responderá el informe.
+      - Puedes usar algunas viñetas para anticipar las dimensiones cubiertas, pero no conviertas la introducción en una lista mecánica.
+      - Si el tema implica relaciones técnicas, de negocio o cuantitativas, introduce los términos, variables o dimensiones de evaluación clave con naturalidad; no inventes hechos específicos que no estén fundamentados en el contexto dado.
+      - **El cuerpo de la introducción DEBE empezar con un único encabezado H2**: ``## {section_number}. Introduction`` (es decir, sección número {section_number}, título "Introduction"). Emite el encabezado exactamente una vez. Nunca produzcas ``## ## ...`` ni omitas el número inicial ``{section_number}.``.
+      - **NO uses ningún subencabezado H3 dentro de la introducción** (ni ``### {section_number}.1 ...`` ni ``### ...``). Escribe la introducción como párrafos fluidos; algunas viñetas están bien, pero no la dividas en subsecciones numeradas.
+
+      Emite exactamente una etiqueta ``INTRO`` en la primera línea; todo lo demás es el cuerpo de la introducción en markdown.
+    user_template: |
+      Tema: {topic}
+      Título del informe: {title}
+
+      Número de introducción: {section_number} (es decir, sección {section_number} del informe).
+
+      Esquema de secciones (títulos + intención):
+
+      {sections_overview}
+
+      Escribe ahora la introducción.
+  section:
+    system: |
+      Escribe UNA sección del informe final.
+      Escribe toda respuesta visible estrictamente en español.
+
+      Reglas:
+      - Haz la sección tan sustancial como permita la evidencia: desarrolla definiciones, contexto, mecanismos, condiciones de contorno, ejemplos / contraejemplos, rutas de implementación, riesgos, compensaciones y preguntas abiertas. No te detengas tras unas pocas frases genéricas.
+      - Escribe una sección analítica densa: empieza con una afirmación o definición y luego desarrolla la cadena de razonamiento. No conviertas cada sección en una lista genérica ``1. 2. 3.``.
+      - Usa párrafos coherentes como columna vertebral, y usa formatos ricos de Markdown cuando aclaren genuinamente el contenido: tablas para comparaciones / compensaciones, viñetas para taxonomías / listas de verificación, listas numeradas para secuencias reales, Mermaid para flujos / arquitecturas / cadenas causales, y ecuaciones LaTeX para relaciones cuantitativas significativas.
+      - El formato rico debe servir a la comprensión, no a la decoración. Normalmente basta con 1-2 elementos estructurados por sección; si la evidencia es escasa, explica la incertidumbre en vez de rellenar o inventar detalles.
+      - Usa el conocimiento consolidado del bloque de evidencia como única fuente de hechos. Cada ítem ``#### Evidence [CIT-...]`` es una fuente citable. Cita en línea como marcadores ``[CIT-...]`` — **cópialos literalmente** de la evidencia; nunca inventes IDs.
+      - Adjunta las citas con precisión a la frase que respaldan. No vuelques un largo grupo de citas al final del párrafo.
+      - Si la evidencia NO contiene marcadores ``[CIT-...]`` (la fase de investigación no recuperó nada para esta sección), escribe la sección sin ningún ``[CIT-...]`` y añade una breve nota final: "No se recuperó evidencia externa para esta sección; las conclusiones reflejan el conocimiento previo del modelo."
+      - Preserva hechos, números y entidades nombradas concretas — no los difumines en afirmaciones vagas.
+      - No dupliques contenido ya cubierto por secciones hermanas.
+      - **El cuerpo de la sección DEBE empezar con un único encabezado H2**: ``## {section_number}. <section title>`` (es decir, esta sección es el número {section_number}). Emite el encabezado exactamente una vez. Nunca produzcas ``## ## ...``; nunca conserves IDs internos estilo ``[S1]``; nunca omitas el número inicial ``{section_number}.``.
+      - Para subsecciones dentro de esta sección, usa encabezados H3 con el prefijo del número de esta sección: ``### {section_number}.1 <sub-title>``, ``### {section_number}.2 <sub-title>`` — NO reinicies la subnumeración en 1 entre secciones.
+
+      Emite exactamente una etiqueta ``SECTION`` en la primera línea; todo lo demás es el cuerpo de la sección en markdown.
+    user_template: |
+      Tema: {topic}
+      Título del informe: {report_title}
+
+      Sección [{section_id}]: {section_title}
+      Número de sección: {section_number} (es decir, sección {section_number} del informe)
+      Intención: {section_intent}
+
+      Evidencia para ESTA sección:
+
+      {evidence}
+
+      Escribe ahora la sección.
+  conclusion:
+    system: |
+      Escribe la conclusión del informe. Debe leerse como síntesis y juicio, no como un simple resumen.
+      Escribe toda respuesta visible estrictamente en español.
+
+      Requisitos de redacción:
+      - Usa 4-6 párrafos enfocados para integrar las conclusiones centrales de las secciones y mostrar cómo se refuerzan o limitan entre sí.
+      - Responde la pregunta más importante que plantea el tema de investigación. Si la evidencia está incompleta, distingue las conclusiones fiables de las afirmaciones que aún requieren validación.
+      - Cuando sea útil, añade líneas de investigación futura, criterios de decisión, recomendaciones de implementación o una lista de riesgos. Usa viñetas escasas cuando mejoren la legibilidad; evita un cierre de plantilla.
+      - Puedes incluir una tabla compacta como "Conclusión conocida / fuerza de la evidencia / aún por validar", pero solo si mejora genuinamente la legibilidad.
+      - **El cuerpo de la conclusión DEBE empezar con un único encabezado H2**: ``## {section_number}. Conclusion`` (es decir, esta es la última sección, número {section_number}). Emite el encabezado exactamente una vez.
+      - **NO uses ningún subencabezado H3 dentro de la conclusión** (ni ``### {section_number}.1 ...`` ni ``### ...``). Escribe la conclusión como párrafos fluidos; algunas viñetas o una tabla compacta están bien, pero no la dividas en subsecciones numeradas.
+
+      Emite exactamente una etiqueta ``CONCLUSION`` en la primera línea; todo lo demás es el cuerpo de la conclusión en markdown.
+    user_template: |
+      Tema: {topic}
+      Título del informe: {title}
+
+      Número de conclusión: {section_number} (es decir, la sección final, sección {section_number} del informe).
+
+      Resumen de secciones:
+
+      {sections_recap}
+
+      Escribe ahora la conclusión.

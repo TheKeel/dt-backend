@@ -1,0 +1,6 @@
+short_description: "Recupera pasajes relevantes de una de las bases de conocimiento adjuntas."
+when_to_use: "Úsala cuando la respuesta probablemente esté cubierta por las bases de conocimiento adjuntas — definiciones, fórmulas, conceptos o explicaciones de libro de texto."
+input_format: "{\"query\": \"consulta en lenguaje natural no vacía\", \"kb_name\": \"uno de los nombres de las bases de conocimiento adjuntas\"}."
+guideline: "Prefiere RAG antes que la búsqueda externa cuando la tarea esté alineada con el curso. Para consultar varias bases de conocimiento, llama a rag una vez por kb_name (el sistema las ejecuta en paralelo)."
+note: "La consulta no debe estar vacía; si la primera recuperación es débil, reformula la consulta desde otro ángulo antes de rendirte."
+phase: "exploration"

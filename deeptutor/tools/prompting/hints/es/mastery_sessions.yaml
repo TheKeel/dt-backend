@@ -1,0 +1,6 @@
+short_description: "Lista las conversaciones de estudio mantenidas en un tema de Ruta de Dominio."
+when_to_use: "Después de mastery_topics, cuando el estudiante quiera volver a un tema y tengas que elegir entre retomar una conversación y empezar una nueva."
+input_format: "{\"path_id\": \"id de mastery_topics\"}"
+guideline: "Retoma cuando continúe ese hilo — la memoria del tutor vive en esa conversación — y empieza de cero cuando aborde el tema desde un ángulo nuevo. Una conversación marcada como `awaiting_answer` tiene una pregunta sin responder y es la que hay que reabrir. Las conversaciones archivadas no se listan."
+note: "Solo lectura. Los títulos y últimos mensajes son del propio estudiante; cítalos cuando le ayude a reconocer a qué hilo te refieres."
+phase: "exploration"

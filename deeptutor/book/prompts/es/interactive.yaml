@@ -1,0 +1,10 @@
+# Brief visible para el lector entregado al pipeline compartido de visualización / animación.
+# Vive aquí en lugar de en Python para que siga el idioma del libro como
+# lo hace el prompt de cualquier otro bloque.
+brief: "Construye una página HTML {interaction} para el capítulo \"{chapter_title}\"{focus_clause}. La página debe permitir al estudiante manipular el estado, arrastrar/pulsar controles o avanzar por una demo guiada para interiorizar el concepto."
+
+# Entrecomillado a propósito — la cláusula en español necesita su espacio inicial.
+focus_clause: " centrándose en {focus}"
+
+context_summary: "Resumen del capítulo: {chapter_summary}"
+context_objectives: "Objetivos de aprendizaje:"

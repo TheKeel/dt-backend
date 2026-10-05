@@ -1,0 +1,6 @@
+short_description: "Lista los documentos que contiene una base de conocimiento adjunta, con el recuento total."
+when_to_use: "Úsala para preguntas sobre la base de conocimiento en sí más que sobre su contenido — cuántos archivos contiene, cómo se llaman, si un documento concreto está en ella o qué se subió."
+input_format: "{\"kb_name\": \"uno de los nombres de las bases de conocimiento adjuntas\", \"pattern\": \"glob opcional como '*.pdf' o una subcadena\", \"limit\": \"máximo opcional a listar\"}."
+guideline: "Nunca respondas una pregunta de conteo o de existencia de archivos a partir de pasajes de rag — la recuperación solo muestra lo que coincidió con una búsqueda y no dice nada del tamaño de la colección. El inventario de bases de conocimiento del prompt del sistema ya cubre los conteos; llama a esta herramienta para la lista completa o para filtrar por nombre."
+note: "Los conteos provienen de los archivos almacenados en la base de conocimiento. Una base cuyo índice aún no está listo igualmente lista sus documentos, y una base alojada en un servidor remoto no puede listarlos en absoluto — informa cualquiera de los dos hechos tal como se indique."
+phase: "exploration"

@@ -61,14 +61,13 @@ def test_every_locale_of_a_failure_notice_can_hold_its_cause(key: str) -> None:
 
 
 def test_a_failure_notice_is_translated_everywhere_it_is_defined() -> None:
-    """A cause that only reaches English readers is half a fix.
+    """A cause that only reaches some readers is half a fix.
 
-    #1356's convergence touched six files for one key precisely because en and
-    zh have to move together; a key present in one locale and absent from the
-    other falls back to English mid-sentence.
+    The system is Spanish-only; a key present in a prompt bundle must be
+    defined in the ``es`` locale.
     """
     for key in CAUSE_BEARING_NOTICES:
         locales = {path.parent.name for path, _text in _notice_definitions(key)}
-        assert {"en", "zh"} <= locales, (
-            f"notices.{key} is missing from locales {{'en', 'zh'}} - {locales}"
+        assert {"es"} <= locales, (
+            f"notices.{key} is missing from locale {{'es'}} - {locales}"
         )

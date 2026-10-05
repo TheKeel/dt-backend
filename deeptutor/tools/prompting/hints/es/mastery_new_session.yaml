@@ -1,0 +1,6 @@
+short_description: "Entrega al estudiante una tarjeta que inicia una nueva conversación de estudio sobre un tema, con el mensaje de apertura ya redactado."
+when_to_use: "Cuando quiera trabajar en un tema y ninguna conversación existente encaje — un enfoque nuevo, un repaso de una lección o un tema sin conversaciones aún."
+input_format: "{\"path_id\": \"...\", \"opening_message\": \"primer mensaje con su propia voz\", \"module\": \"id / nombre / número de lección opcional\", \"reason\": \"una línea sobre por qué ahora\"}"
+guideline: "Mismas reglas que mastery_open_session: el mensaje de apertura está escrito con la voz del estudiante y nombra la lección cuando pidió una. El tema conserva todo su progreso — solo la conversación es nueva — así que di eso en lugar de advertirle que empieza de cero."
+note: "Produce una tarjeta en la que el estudiante hace clic; nada navega por sí solo y ningún progreso cambia."
+phase: "synthesis"

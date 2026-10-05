@@ -506,7 +506,7 @@ def test_obsidian_kb_system_note_mentions_read_tools(monkeypatch: pytest.MonkeyP
     # the note must not instruct calling rag (it may only forbid it)
     assert "When calling rag" not in note
     assert "kb_name must be" not in note
-    assert "read-only" in note.lower() or "只读" in note
+    assert "solo lectura" in note.lower()
 
 
 def test_indexed_kb_system_note_keeps_kb_name(monkeypatch: pytest.MonkeyPatch) -> None:

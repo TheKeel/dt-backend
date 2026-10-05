@@ -2,7 +2,7 @@
 Shared prompt loader for non-BaseAgent call sites in ``deeptutor/book``.
 
 All LLM-facing prompts inside this module live as YAML under
-``deeptutor/book/prompts/{en,zh}/<name>.yaml`` and are loaded through the
+``deeptutor/book/prompts/es/<name>.yaml`` and are loaded through the
 unified :class:`~deeptutor.services.prompt.PromptManager`. This helper is the
 thin wrapper that block generators and the SectionArchitect use, since they
 call ``llm_text`` directly instead of inheriting :class:`BaseAgent`.
@@ -30,9 +30,9 @@ def load_book_prompts(name: str, language: str) -> dict[str, Any]:
     """Load a YAML prompt bundle for the ``book`` module.
 
     Args:
-        name: File stem under ``deeptutor/book/prompts/{lang}/``
+        name: File stem under ``deeptutor/book/prompts/es/``
             (e.g. ``"text"``, ``"section"``, ``"page_planner"``).
-        language: ``"en"`` or ``"zh"``.
+        language: locale code (Spanish-only; any value resolves to ``"es"``).
 
     Returns:
         Parsed YAML as a dictionary.
@@ -48,7 +48,7 @@ def load_book_prompts(name: str, language: str) -> dict[str, Any]:
     if not prompts:
         raise RuntimeError(
             f"Missing prompt bundle for book/{name} (language={language}). "
-            f"Expected deeptutor/book/prompts/{{en,zh}}/{name}.yaml."
+            f"Expected deeptutor/book/prompts/es/{name}.yaml."
         )
     return prompts
 

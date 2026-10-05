@@ -1,0 +1,6 @@
+short_description: "Trae una URL específica y extrae el contenido legible como markdown."
+when_to_use: "Cuando el mensaje del usuario contenga una URL específica y sea necesario leer esa página: blogs / libros de texto / enlaces de artículos compartidos con una pregunta sobre ellos, o una petición explícita de «lee esta página». Usa ``web_search`` para búsquedas generales de temas."
+input_format: "{\"url\": \"URL completa http(s)://\", \"max_chars\": 50000}. ``max_chars`` es opcional (por defecto 50000) y el contenido más allá se trunca."
+guideline: "Las páginas tras login, anti-bots o solo-JS pueden devolver poco contenido útil — dilo con honestidad, no fabriques alrededor de un resultado vacío. El texto devuelto ya trae scripts y barras laterales eliminados (la primera línea es `# Título` cuando está disponible)."
+note: "Rechaza direcciones file:// / localhost / IP privadas. Trae una URL por llamada; emite llamadas separadas para múltiples URLs."
+phase: "exploration"

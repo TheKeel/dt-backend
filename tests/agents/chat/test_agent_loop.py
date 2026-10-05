@@ -602,7 +602,7 @@ async def test_empty_finish_gets_one_nudge_then_recovers(
     # the nudge instruction as the trailing user message.
     second_round = client.calls[1]["messages"]
     assert second_round[-1]["role"] == "user"
-    assert "internal reasoning" in second_round[-1]["content"]
+    assert "razonamiento interno" in second_round[-1]["content"]
     assert any(
         m.get("role") == "assistant" and "whole script" in str(m.get("content"))
         for m in second_round
@@ -1526,8 +1526,8 @@ async def test_truncated_pure_reasoning_round_is_told_to_act_not_continue(
 
     assert client.call_count == 2
     instruction = str(client.calls[1]["messages"][-1]["content"])
-    assert "没有「中断处」可以续" in instruction
-    assert "从中断处继续" not in instruction
+    assert "no hay nada que continuar" in instruction
+    assert "Continúa desde donde terminó" not in instruction
     assert _answer_text(events) == "答案是 42。"
 
 
@@ -1565,7 +1565,7 @@ async def test_truncated_reasoning_round_replays_state_and_keeps_tools(
         and message.get("reasoning_content") == "I have enough context to act."
         for message in second_round
     )
-    assert "Act now" in str(second_round[-1]["content"])
+    assert "Actúa ahora" in str(second_round[-1]["content"])
     first_complete = next(
         event
         for event in events
@@ -1748,7 +1748,7 @@ async def test_truncated_round_with_visible_text_still_continues(
     events = await _run(pipeline, UnifiedContext(session_id="s1", user_message="讲一下"))
 
     instruction = str(client.calls[1]["messages"][-1]["content"])
-    assert "从中断处继续" in instruction
+    assert "Continúa desde donde terminó" in instruction
     assert _answer_text(events) == "答案的前半段和后半段。"
 
 
@@ -2176,7 +2176,7 @@ async def test_midloop_transport_failure_retries_current_round(
         if e.type == StreamEventType.PROGRESS
         and e.metadata.get("error_code") == "provider_transport"
     ]
-    assert progress == ["The model provider connection was interrupted; retrying."]
+    assert progress == ["La conexión con el proveedor del modelo se interrumpió; reintentando."]
 
 
 @pytest.mark.asyncio
@@ -2222,7 +2222,7 @@ async def test_first_round_transport_failure_retries_then_becomes_structured_err
     assert raised.value.error_code == "provider_transport"
     assert raised.value.retryable is True
     assert raised.value.partial_response is False
-    assert str(raised.value) == "Unable to reach the model provider. Please retry."
+    assert str(raised.value) == "No se pudo contactar al proveedor del modelo. Reintenta por favor."
 
 
 @pytest.mark.asyncio
@@ -2906,7 +2906,7 @@ async def test_round_budget_enters_tool_enabled_settlement_then_finishes(
     # one follow-up round retains tools so already-started work can settle.
     assert "tools" in client.calls[-1]
     settlement_instruction = client.calls[-1]["messages"][-1]["content"]
-    assert "exploration round budget" in settlement_instruction.lower()
+    assert "presupuesto de rondas de exploración" in settlement_instruction.lower()
     result = _result(events)
     assert result.metadata["response"] == "Best effort answer."
     assert result.metadata["completed"] is True
@@ -3031,7 +3031,7 @@ async def test_budget_settlement_completes_quiz_ask_grade_and_feedback(
     assert all("tools" in call for call in client.calls)
     grade_round = client.calls[2]["messages"]
     assert any(
-        message.get("role") == "tool" and "User answered" in str(message.get("content"))
+        message.get("role") == "tool" and "El usuario respondió" in str(message.get("content"))
         for message in grade_round
     )
     result = _result(events)
@@ -3114,7 +3114,7 @@ async def test_length_finish_reason_continues_within_bounded_settlement(
         "role": "assistant",
         "content": "Part one is incomplete. ",
     }
-    assert "token limit" in continuation_messages[-1]["content"].lower()
+    assert "límite de tokens" in continuation_messages[-1]["content"].lower()
     markers = [
         event.metadata
         for event in events
@@ -3158,8 +3158,8 @@ async def test_repeated_reasoning_only_finishes_are_bounded(
     assert client.call_count == 3
     forced_request = client.calls[2]["messages"]
     forced_instruction = str(forced_request[-1]["content"])
-    assert "Do not reason further" in forced_instruction
-    assert "Stop calling tools" in forced_instruction
+    assert "No razones más" in forced_instruction
+    assert "Deja de llamar herramientas" in forced_instruction
     result = _result(events)
     assert result.metadata["response"] == "Recovered after the hard finish."
     assert result.metadata["completed"] is True
@@ -3190,8 +3190,8 @@ async def test_reasoning_only_hard_finish_has_distinct_fallback(
     assert client.call_count == 3
     result = _result(events)
     assert result.metadata["response"] == (
-        "The model produced internal reasoning but no usable answer. "
-        "Please try again or narrow the request."
+        "El modelo produjo razonamiento interno pero sin respuesta utilizable. "
+        "Intenta de nuevo o acota la petición."
     )
     assert result.metadata["completed"] is True
     assert result.metadata["settlement_rounds"] == 1
@@ -3488,7 +3488,7 @@ async def test_truncated_tool_call_says_the_output_hit_the_limit(
         for event in events
         if (event.metadata or {}).get("trace_kind") == "warning"
     ]
-    assert any("输出 token 上限" in text for text in warnings)
+    assert any("límite de tokens de salida" in text for text in warnings)
     # The notice is a report, not a control-flow change: the round is handled
     # exactly as before and the turn still finishes.
     assert _answer_text(events) == "答案"

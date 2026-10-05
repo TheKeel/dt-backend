@@ -1,0 +1,7 @@
+status:
+  code_prepared: "Código Manim preparado."
+  retry: "Reintento {attempt}: {error}"
+  rendering: "Renderizando {mode} con calidad={quality}."
+  artifacts_one: "{count} artefacto preparado."
+  artifacts_many: "{count} artefactos preparados."
+  llm_call_failed: "Falló la llamada al LLM."

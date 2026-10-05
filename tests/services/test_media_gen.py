@@ -95,10 +95,8 @@ def test_join_api_path_appends_and_preserves_full_url() -> None:
 @pytest.mark.parametrize(
     ("tool", "language", "expected"),
     [
-        (ImagegenTool(), "en", "generative visual requests"),
-        (ImagegenTool(), "zh", "生成式视觉请求"),
-        (VideogenTool(), "en", "long-running media service"),
-        (VideogenTool(), "zh", "耗时较长的媒体服务"),
+        (ImagegenTool(), "es", "solicitudes visuales generativas"),
+        (VideogenTool(), "es", "larga duración"),
     ],
 )
 def test_media_tool_prompt_hints_distinguish_generation_from_exec(

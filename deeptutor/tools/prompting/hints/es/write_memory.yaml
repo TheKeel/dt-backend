@@ -1,0 +1,6 @@
+short_description: "Guarda una preferencia explícita del usuario en la memoria a largo plazo. Solo se activa cuando el usuario *claramente* expresa una preferencia."
+when_to_use: "El usuario te comunicó explícitamente una preferencia — estilo, idioma, formato, profundidad, cadencia de seguimiento, cualquier cosa que quiera mantener a futuro. NO especules; NO infieras a partir de un comentario aislado que podría ser situacional."
+input_format: "{\"op\": \"add\"|\"edit\", \"text\": \"≤240 caracteres con las palabras del usuario\", \"target_id\"?: \"m_xxx para edit\", \"reason\"?: \"nota opcional\"}"
+guideline: "Confirma la preferencia brevemente en tu respuesta («Entendido — conciso de ahora en adelante») y luego llama a esto. Prefiere citar al usuario «literalmente» cuando sea natural. Una llamada por preferencia; no agrupes preferencias no relacionadas en un solo texto."
+note: "Escribe en el documento L3 de preferencias. Las otras capas de memoria (reciente, perfil, alcance, resúmenes por superficie) las consolida el usuario manualmente en el banco de Memoria — no intentes escribir ahí."
+phase: "execution"

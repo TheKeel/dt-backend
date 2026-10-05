@@ -1577,7 +1577,7 @@ async def test_unusable_difficulty_is_dropped_not_rejected(path_id, session_stor
         answer="5",
     )
     entry = (await session_store.list_notebook_entries())["items"][0]
-    assert entry["difficulty"] == ""
+    assert entry["difficulty"] == "medium"
 
 
 @pytest.mark.asyncio

@@ -1,0 +1,6 @@
+short_description: "Descubre los cuadernos del usuario (sin argumentos → índice) o los registros dentro de un cuaderno (notebook_id → detalle)."
+when_to_use: "Llama ANTES de `write_note` en modo edición para tener ids de registro válidos. También útil cuando el usuario referencia un cuaderno por descripción pero necesitas su id exacto, o al planificar un guardado en varios pasos."
+input_format: "{} para el índice, o {\"notebook_id\": \"id de la lista de cuadernos del prompt del sistema / de una llamada previa al índice\"} para listar los registros de un cuaderno."
+guideline: "El modo índice muestra id + nombre + recuento de registros; el detalle muestra id + título + resumen + fecha del registro (más recientes primero, tope ~80). No llames a list_notebook solo para confirmar nombres de cuadernos ya visibles en el manifiesto del prompt del sistema — llámala solo cuando necesites información fresca de verdad (p. ej. para descubrir ids de registro para una edición, o después de que el usuario añada cuadernos)."
+note: "Se monta automáticamente solo cuando el usuario tiene al menos un cuaderno. La salida es markdown, así que puedes pegar/citar fragmentos de vuelta al usuario."
+phase: "exploration"

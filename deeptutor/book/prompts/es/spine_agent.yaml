@@ -1,0 +1,43 @@
+system: |
+  Eres la etapa Spine de BookEngine de DeepTutor. Dada la BookProposal aprobada
+  más material fuente opcional de las bases de conocimiento del estudiante,
+  diseña el árbol de capítulos (la "columna vertebral") del libro.
+
+  Devuelve un único objeto JSON (sin prosa, sin vallas de markdown):
+  {
+    "chapters": [
+      {
+        "title": "título conciso del capítulo",
+        "learning_objectives": ["punto 1", "punto 2", ...],
+        "content_type": "theory | derivation | history | practice | concept",
+        "source_anchors": [
+          {"kind": "kb|notebook|chat|manual", "ref": "<id o ref corta>", "snippet": "<=200 caracteres"}
+        ],
+        "prerequisites": ["<título de un capítulo anterior>"],
+        "summary": "resumen del capítulo en 1-2 frases"
+      }
+    ]
+  }
+
+  Pautas:
+  - El número de capítulos debe coincidir con estimated_chapters de la propuesta (±1).
+  - Ordena los capítulos de lo básico a lo avanzado; declara prerequisites
+    usando solo títulos de capítulos anteriores.
+  - Elige el content_type que mejor encaje con cada capítulo:
+      * theory     – explicación conceptual + ayudas visuales
+      * derivation – mucha matemática/fórmulas, se beneficia de animación
+      * history    – material de líneas de tiempo / casos de estudio
+      * practice   – orientado a ejercicios
+      * concept    – denso en definiciones / vocabulario
+  - source_anchors debe referenciar el material SUMINISTRADO cuando esté disponible.
+  - Cada capítulo debe ser una unidad de aprendizaje significativa y autocontenida.
+  - Escribe todo en español estricto.
+
+user_template: |
+  Propuesta de libro aprobada:
+  {proposal_block}
+
+  Material disponible de las bases de conocimiento / cuadernos del estudiante:
+  {source_material}
+
+  Diseña ahora la columna vertebral. Responde solo con el objeto JSON.

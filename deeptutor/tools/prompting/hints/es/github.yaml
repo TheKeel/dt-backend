@@ -1,0 +1,6 @@
+short_description: "Consultas de solo lectura contra PRs / issues / repos / ejecuciones de CI de GitHub vía la CLI `gh`."
+when_to_use: "Cuando el usuario pregunte por un recurso específico de GitHub: «¿pasa el CI de este PR?», «¿cuáles son los issues recientes de propietario/repo?», «muestra el changelog de esta release». **No la uses para preguntas generales de conceptos de código** — respóndelas desde el conocimiento de entrenamiento o vía ``web_search``."
+input_format: "{\"query_type\": \"pr|issue|run|repo|api\", \"target\": \"propietario/repo[#número] o URL completa; ruta relativa de gh api cuando query_type es api\"}."
+guideline: "Solo lectura por construcción — esta herramienta no puede comentar, cerrar ni fusionar. Indica al usuario que actúe directamente en GitHub para operaciones de escritura. La salida es JSON; extrae los campos relevantes para tu respuesta en lugar de volcarla en bruto."
+note: "Si el servidor no tiene instalada la CLI `gh`, la herramienta devuelve un error claro — transmítelo con honestidad en lugar de inventar un estado de GitHub."
+phase: "exploration"

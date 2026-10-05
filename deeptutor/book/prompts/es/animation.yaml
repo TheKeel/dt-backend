@@ -1,0 +1,10 @@
+# Brief visible para el lector entregado al pipeline compartido de visualización / animación.
+# Vive aquí en lugar de en Python para que siga el idioma del libro como
+# lo hace el prompt de cualquier otro bloque.
+brief: "Crea una animación corta en Manim que recorra la derivación central de \"{chapter_title}\"{focus_clause}. Debe ser una explicación clara, paso a paso, que un estudiante pueda seguir."
+
+# Entrecomillado a propósito — la cláusula en español necesita su espacio inicial.
+focus_clause: " centrándose en {focus}"
+
+context_summary: "Resumen del capítulo: {chapter_summary}"
+context_objectives: "Objetivos de aprendizaje:"

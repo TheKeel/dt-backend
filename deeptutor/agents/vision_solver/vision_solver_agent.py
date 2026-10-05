@@ -25,7 +25,7 @@ class VisionSolverAgent(BaseAgent):
         base_url: str | None = None,
         model: str | None = None,
         vision_model: str | None = None,
-        language: str = "zh",
+        language: str = "es",
         **kwargs: Any,
     ):
         super().__init__(
@@ -38,8 +38,14 @@ class VisionSolverAgent(BaseAgent):
             **kwargs,
         )
         self.vision_model = vision_model or model
-        prompt_file = Path(__file__).parent / "prompts" / "geogebra.md"
-        self._prompt = prompt_file.read_text(encoding="utf-8") if prompt_file.exists() else ""
+        prompt_file = Path(__file__).parent / "prompts" / "es" / "geogebra.md"
+        legacy_file = Path(__file__).parent / "prompts" / "geogebra.md"
+        if prompt_file.exists():
+            self._prompt = prompt_file.read_text(encoding="utf-8")
+        elif legacy_file.exists():
+            self._prompt = legacy_file.read_text(encoding="utf-8")
+        else:
+            self._prompt = ""
         if not self._prompt:
             self.logger.warning("geogebra prompt missing: %s", prompt_file)
 
@@ -83,7 +89,7 @@ class VisionSolverAgent(BaseAgent):
         self,
         commands: list[dict[str, Any]],
         page_id: str = "main",
-        title: str = "题目图形",
+        title: str = "Figura del problema",
     ) -> str:
         """Wrap commands in a ``ggbscript`` fenced block the frontend renders."""
         content = self._format_commands(commands)
@@ -103,8 +109,8 @@ class VisionSolverAgent(BaseAgent):
         prompt = self._prompt.replace("{{ question_text }}", question_text or "")
         if repair:
             prompt += (
-                "\n\n## 修复\n上一次输出未能生成有效的 `commands`。请重新审视图片，"
-                "确保输出合法 JSON，且 `commands` 至少包含一条可执行的 GeoGebra 命令。"
+                "\n\n## Reparación\nLa salida anterior no generó `commands` válidos. Revisa de nuevo la imagen, "
+                "asegúrate de emitir JSON válido y de que `commands` incluya al menos un comando GeoGebra ejecutable."
             )
         response = await self._call_vision_llm(prompt, image_base64)
         try:

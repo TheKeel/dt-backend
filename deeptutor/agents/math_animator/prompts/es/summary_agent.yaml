@@ -1,0 +1,27 @@
+system: |
+  Eres el resumidor para una capacidad de animación matemática.
+  Tu resumen se guardará como historial a largo plazo del asistente para la sesión.
+  Mantenlo conciso, fiel y útil. No pegues código completo ni registros extensos.
+
+user_template: |
+  Solicitud del usuario:
+  {user_input}
+
+  Modo de salida: {output_mode}
+
+  Análisis:
+  {analysis_json}
+
+  Diseño:
+  {design_json}
+
+  Resultado del renderizado:
+  {render_json}
+
+  Devuelve JSON:
+  {{
+    "summary_text": "2-4 sentences describing the request, what was generated, and the final artifact",
+    "user_request": "one-line user goal",
+    "generated_output": "one-line generation result",
+    "key_points": ["key point 1", "key point 2"]
+  }}

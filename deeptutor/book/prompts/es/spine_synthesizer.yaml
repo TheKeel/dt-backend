@@ -1,0 +1,126 @@
+draft_system: |
+  Eres el paso de **borrador** del SpineSynthesizer de DeepTutor. Dados el
+  ``BookProposal`` aprobado, el ``ExplorationReport`` (resumen de fuentes + fragmentos
+  clave de evidencia + conceptos candidatos), diseña DOS cosas en un único objeto JSON:
+
+  1. ``concept_graph`` – un grafo dirigido de conceptos basado en evidencia que
+     el libro debería enseñar. Usa los ``candidate_concepts`` de la exploración como
+     semilla, pero siéntete libre de añadir / eliminar / fusionar. Las aristas apuntan
+     del prerrequisito al concepto dependiente ("depends_on") o "extends" / "related"
+     donde corresponda.
+  2. ``chapters`` – una columna de capítulos que *cubra* el grafo de conceptos. Cada
+     capítulo debe recoger uno o más nodos (campo ``covers``). El orden debe
+     seguir un orden topológico de las dependencias de conceptos.
+
+  Devuelve ÚNICAMENTE esta forma JSON (sin prosa, sin vallas de markdown):
+  {
+    "concept_graph": {
+      "nodes": [
+        {"id": "<slug>", "label": "<etiqueta legible>", "description": "<= 1 frase",
+         "weight": <0.1-1.0>}
+      ],
+      "edges": [
+        {"src": "<id de nodo>", "dst": "<id de nodo>",
+         "relation": "depends_on | extends | related",
+         "rationale": "<= 1 frase"}
+      ]
+    },
+    "chapters": [
+      {
+        "title": "título conciso del capítulo",
+        "learning_objectives": ["punto 1", "punto 2", ...],
+        "content_type": "theory | derivation | history | practice | concept",
+        "covers": ["<id de nodo de concepto>", ...],
+        "source_anchors": [
+          {"kind": "kb|notebook|chat|manual", "ref": "<id>", "snippet": "<=200 caracteres"}
+        ],
+        "prerequisites": ["<título de capítulo anterior>"],
+        "summary": "resumen del capítulo en 1-2 frases"
+      }
+    ]
+  }
+
+  Pautas:
+  - El número de capítulos debe coincidir con ``estimated_chapters`` de la propuesta (±1).
+  - Cada capítulo debe ``cubrir`` al menos un nodo de concepto; cada nodo de concepto
+    debe estar cubierto por al menos un capítulo.
+  - Usa ids en ``snake_case`` para los nodos de concepto; cortos y reutilizables.
+  - Evita dependencias circulares en el grafo de conceptos.
+  - Escribe todo en español estricto.
+
+draft_user: |
+  BookProposal aprobado:
+  {proposal_block}
+
+  Resumen de la exploración:
+  {exploration_summary}
+
+  Conceptos candidatos (semilla):
+  {candidate_concepts}
+
+  Fragmentos de evidencia destacados:
+  {chunks_block}
+
+  Diseña ahora el objeto JSON.
+
+critique_system: |
+  Eres el paso de **crítica** del SpineSynthesizer de DeepTutor. Dado un
+  borrador de columna + grafo de conceptos, identifica debilidades concretas. Sé breve
+  y específico.
+
+  Devuelve ÚNICAMENTE un objeto JSON:
+  {
+    "issues": [
+      {"category": "coverage | ordering | granularity | redundancy | missing_anchor | cycle | other",
+       "detail": "<= 2 frases explicando el problema",
+       "fix_hint": "<= 1 frase sugiriendo una corrección concreta"}
+    ],
+    "verdict": "ok | revise"
+  }
+
+  Busca:
+  - Nodos de concepto nunca cubiertos por ningún capítulo (o viceversa).
+  - Capítulos cuyos prerrequisitos sean inconsistentes con el grafo de conceptos.
+  - Ciclos o contradicciones entre aristas ``depends_on``.
+  - Capítulos demasiado amplios / demasiado estrechos respecto al alcance de la propuesta.
+  - Capítulos redundantes o nodos de concepto casi duplicados.
+  - source_anchors vacíos cuando exista evidencia relevante de la exploración.
+
+  Si no hay problemas reales, devuelve ``"verdict": "ok"`` con una lista
+  ``issues`` vacía.
+
+critique_user: |
+  BookProposal aprobado:
+  {proposal_block}
+
+  Borrador (columna + grafo de conceptos):
+  {draft_block}
+
+  Resumen de la exploración:
+  {exploration_summary}
+
+  Haz ahora la crítica.
+
+revise_system: |
+  Eres el paso de **revisión** del SpineSynthesizer de DeepTutor. Dados el
+  borrador previo y una crítica estructurada, produce un objeto JSON corregido
+  con el MISMO esquema del paso de borrador (``concept_graph`` + ``chapters``).
+
+  Aplica fielmente las sugerencias de corrección. Si una entrada de la crítica es
+  poco clara o contradictoria, prefiere la opción que aumente la cobertura del grafo
+  de conceptos y la coherencia topológica. No introduzcas capítulos nuevos que no se
+  hayan insinuado, salvo que la cobertura lo exija claramente.
+
+  Devuelve ÚNICAMENTE el objeto JSON.
+
+revise_user: |
+  BookProposal aprobado:
+  {proposal_block}
+
+  Crítica:
+  {critique_block}
+
+  Borrador previo:
+  {draft_block}
+
+  Produce ahora el JSON revisado.

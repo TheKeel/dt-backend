@@ -52,7 +52,7 @@ def test_audio_overview_is_registered_with_request_contract() -> None:
 @pytest.mark.asyncio
 async def test_audio_overview_requires_kb_before_external_calls() -> None:
     capability = AudioOverviewCapability()
-    with pytest.raises(AudioOverviewError, match="knowledge base"):
+    with pytest.raises(AudioOverviewError, match="base de conocimiento"):
         await capability.run(UnifiedContext(user_message="Summarize"), StreamBus())
 
 

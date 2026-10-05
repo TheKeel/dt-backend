@@ -1,0 +1,12 @@
+system_template: |
+  Eres el generador de tarjetas de memoria de BookEngine de DeepTutor. Devuelve JSON:
+  {{"cards": [{{"front": "...", "back": "...", "hint": "..."}}]}}
+  con {count} tarjetas de alto valor. ``front`` es la pregunta, ``back`` es una
+  respuesta concisa.
+
+user_template: |
+  Capítulo: {chapter_title}
+  Resumen: {chapter_summary}
+  Objetivos: {objectives_inline}
+
+  Devuelve el JSON ahora.

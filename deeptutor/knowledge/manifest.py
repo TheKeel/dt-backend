@@ -300,6 +300,13 @@ def _size_of(path: Path) -> int:
 # ---------------------------------------------------------------------------
 
 _STATUS_LABELS: dict[str, dict[str, str]] = {
+    "es": {
+        "ready": "índice listo",
+        "needs_reindex": "necesita reindexar, la recuperación puede estar incompleta",
+        "processing": "indexando todavía, la recuperación puede estar incompleta",
+        "initializing": "indexando todavía, la recuperación puede estar incompleta",
+        "error": "falló la indexación, la recuperación puede no estar disponible",
+    },
     "en": {
         "ready": "index ready",
         "needs_reindex": "needs reindexing, retrieval may be incomplete",
@@ -319,6 +326,14 @@ _STATUS_LABELS: dict[str, dict[str, str]] = {
 # Complete sentences, so the manifest note and the tool report can share one
 # wording instead of each phrasing the same fact its own way.
 _UNAVAILABLE_LABELS: dict[str, dict[str, str]] = {
+    "es": {
+        UNAVAILABLE_REMOTE: "Alojada en un servidor remoto; no se puede leer su lista de documentos.",
+        UNAVAILABLE_AGENT: "Un agente conectado, no una colección de documentos.",
+        UNAVAILABLE_MISSING: (
+            "Su carpeta de documentos no se puede leer ahora — puede estar "
+            "todavía en construcción o ser una carpeta externa que se ha movido."
+        ),
+    },
     "en": {
         UNAVAILABLE_REMOTE: "Hosted on a remote server; its document list cannot be read.",
         UNAVAILABLE_AGENT: "A connected agent, not a document collection.",
@@ -335,6 +350,24 @@ _UNAVAILABLE_LABELS: dict[str, dict[str, str]] = {
 }
 
 _NOTE_TEXT: dict[str, dict[str, str]] = {
+    "es": {
+        "header": (
+            "[Inventario de bases de conocimiento]\n"
+            "Lo que realmente contienen las bases de conocimiento adjuntas, leído "
+            "de las propias bases de conocimiento."
+        ),
+        "empty": "sin documentos todavía",
+        "total": "{count} documento{plural}",
+        "omitted": "y {count} más, usa kb_files para la lista completa",
+        "authority": (
+            "Responde preguntas sobre cantidad de documentos, nombres de archivo "
+            "y si un archivo dado está presente desde este inventario — es autoritativo. "
+            "Los pasajes recuperados solo muestran lo que una búsqueda encontró "
+            "y nunca deben usarse para inferir cuántos documentos tiene una base "
+            "ni si uno existe en ella. Llama a kb_files para la lista completa "
+            "o para filtrar por nombre."
+        ),
+    },
     "en": {
         "header": (
             "[Knowledge Base Inventory]\n"
@@ -368,6 +401,15 @@ _NOTE_TEXT: dict[str, dict[str, str]] = {
 }
 
 _REPORT_TEXT: dict[str, dict[str, str]] = {
+    "es": {
+        "heading": 'Base de conocimiento "{name}"{qualifier}: {total} documento{plural}.',
+        "empty": 'Base de conocimiento "{name}"{qualifier} no tiene documentos.',
+        "unavailable": 'Base de conocimiento "{name}": {reason}',
+        "matched": 'Coinciden con "{pattern}": {count}.',
+        "no_match": 'Ningún nombre de documento coincide con "{pattern}".',
+        "omitted": "Mostrando los primeros {shown}; {omitted} más sin listar "
+        "(acota con pattern o eleva limit).",
+    },
     "en": {
         "heading": 'Knowledge base "{name}"{qualifier}: {total} document{plural}.',
         "empty": 'Knowledge base "{name}"{qualifier} holds no documents.',
@@ -389,11 +431,11 @@ _REPORT_TEXT: dict[str, dict[str, str]] = {
 
 
 def _lang(language: str) -> str:
-    return "zh" if str(language or "en").lower().startswith("zh") else "en"
+    return "es"
 
 
 def _colon(language: str) -> str:
-    return "：" if language == "zh" else ": "
+    return ": "
 
 
 def _total_label(manifest: KbManifest, text: Mapping[str, str]) -> str:
@@ -411,7 +453,7 @@ def _qualifier(manifest: KbManifest, language: str) -> str:
     parts = [part for part in (manifest.provider, _status_label(manifest, language)) if part]
     if not parts:
         return ""
-    return f"（{'，'.join(parts)}）" if language == "zh" else f" ({', '.join(parts)})"
+    return f" ({', '.join(parts)})"
 
 
 def _status_label(manifest: KbManifest, language: str) -> str:
@@ -442,7 +484,7 @@ def _note_line(manifest: KbManifest, language: str) -> str:
     listed = "; ".join(document.name for document in manifest.documents)
     if manifest.omitted:
         tail = text["omitted"].format(count=manifest.omitted)
-        listed = f"{listed}（{tail}）" if language == "zh" else f"{listed} ({tail})"
+        listed = f"{listed} ({tail})"
     return f"{head}{_total_label(manifest, text)} — {listed}"
 
 

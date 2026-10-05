@@ -483,6 +483,13 @@ markers = [
     "real_llm_resolver: exercises LLM config resolution itself, so it keeps the real resolver",
 ]
 asyncio_default_fixture_loop_scope = "function"
+filterwarnings = [
+    # Upstream starlette 1.6.0 + anyio 4.15.1 incompatibility: starlette's
+    # TestClient references the deprecated anyio.abc.BlockingPortal alias at
+    # import time. Not our code; ignore until starlette switches to
+    # anyio.from_thread.BlockingPortal.
+    "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning",
+]
 addopts = [
     "--strict-markers",
     "--strict-config",

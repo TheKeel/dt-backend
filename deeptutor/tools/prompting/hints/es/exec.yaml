@@ -1,0 +1,6 @@
+short_description: "Ejecuta código fuente o un script de shell explícito en una herramienta de espacio de trabajo aislado; devuelve stdout/stderr y los archivos generados."
+when_to_use: "Para cálculos, archivos generados, procesamiento de datos, scripts existentes, comprobaciones de CLI/entorno y operaciones de shell concisas."
+input_format: "`code` — fuente completa o texto de shell; `language` opcional — python (predeterminado), c, cpp o shell; `stdin` y `timeout` opcionales."
+guideline: "Para Python/C/C++, pasa la fuente completa directamente y guarda los archivos generados con nombres relativos simples en el directorio de trabajo estable de cada turno. Las llamadas posteriores y todos los modos de lenguaje comparten ese directorio y entorno de dependencias, así que pueden reabrir y revisar archivos anteriores. Usa `language: shell` para tareas de shell; nunca envuelvas Python en `python -c` ni en un heredoc. Prefiere banderas de shell no interactivas y `python -m pip`."
+note: "Los patrones destructivos (rm -rf, mkfs, shutdown, …) están bloqueados. No describas fallos de sintaxis o de dependencias como denegación del sandbox; inspecciona STDERR y cambia la fuente o la dependencia."
+phase: "expansion"

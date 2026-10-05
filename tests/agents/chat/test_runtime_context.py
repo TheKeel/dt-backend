@@ -61,30 +61,31 @@ def test_block_is_registered():
 
 
 def test_default_injects_real_current_date_en():
-    content = _runtime_block(ChatPromptAssembler(prompts=PROMPTS_NO_RUNTIME, language="en"))
+    content = _runtime_block(ChatPromptAssembler(prompts=PROMPTS_NO_RUNTIME, language="es"))
     assert "{datetime}" not in content
-    assert "2026-08-17" in content
+    assert FIXED_NOW.astimezone().date().isoformat() in content
 
 
 def test_default_injects_real_current_date_zh():
-    content = _runtime_block(ChatPromptAssembler(prompts=PROMPTS_NO_RUNTIME, language="zh"))
+    content = _runtime_block(ChatPromptAssembler(prompts=PROMPTS_NO_RUNTIME, language="es"))
     assert "{datetime}" not in content
-    assert "2026年8月17日" in content
+    assert FIXED_NOW.astimezone().date().isoformat() in content
 
 
 def test_yaml_template_substitutes_placeholder():
     """The shipped yaml template carries ``{datetime}``; the assembler must
     swap it for the real date rather than leaking the raw placeholder."""
     root = Path(__file__).resolve().parents[3] / "deeptutor/agents/chat/prompts"
-    prompts = yaml.safe_load((root / "en" / "agentic_chat.yaml").read_text(encoding="utf-8"))
-    content = _runtime_block(ChatPromptAssembler(prompts=prompts, language="en"))
+    prompts = yaml.safe_load((root / "es" / "agentic_chat.yaml").read_text(encoding="utf-8"))
+    content = _runtime_block(ChatPromptAssembler(prompts=prompts, language="es"))
     assert "{datetime}" not in content
-    assert "2026-08-17" in content
+    assert "Fecha actual:" in content
+    assert FIXED_NOW.astimezone().date().isoformat() in content
 
 
 def test_shipped_yaml_carries_runtime_context_template():
     root = Path(__file__).resolve().parents[3] / "deeptutor/agents/chat/prompts"
-    for lang in ("en", "zh"):
+    for lang in ("es",):
         data = yaml.safe_load((root / lang / "agentic_chat.yaml").read_text(encoding="utf-8"))
         assert "runtime_context" in data, f"{lang} missing runtime_context"
         assert "{datetime}" in data["runtime_context"], (

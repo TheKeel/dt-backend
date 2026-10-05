@@ -1,0 +1,6 @@
+status:
+  topic_required: "Se requiere un tema para la generación personalizada de preguntas."
+  parsing_uploaded: "Analizando el examen subido y extrayendo plantillas..."
+  parsing_directory: "Cargando el examen analizado y extrayendo plantillas..."
+  mimic_needs_paper: "El modo de imitación requiere un PDF subido o un directorio de examen analizado."
+  llm_call_failed: "Falló la llamada al LLM."

@@ -1,0 +1,5 @@
+short_description: "Convierte una base de conocimiento adjunta en recomendaciones recientes de arXiv con fundamento."
+when_to_use: "El estudiante pide artículos de frontera, tendencias de investigación, brechas por explorar o qué estudiar a continuación a partir de una base de conocimiento adjunta."
+input_format: "kb_name; focus, max_papers y years_limit opcionales"
+guideline: "Úsala cuando la base de conocimiento ya esté adjunta; llama una vez por base de conocimiento. Trata los resultados como sugerencias para revisión explícita, no como material importado."
+phase: expansion

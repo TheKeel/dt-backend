@@ -1,0 +1,5 @@
+short_description: "Genera un video original con el servicio de generación de video configurado y guárdalo en outputs/ del espacio de trabajo activo."
+when_to_use: "Úsala cuando el usuario pida un video generado, una escena en movimiento, un clip cinematográfico o un resultado de texto-a-video. Es un servicio de medios de larga duración. Usa exec para renderizado programático o post-procesamiento."
+input_format: "Un prompt vívido y autocontenido de escena y movimiento; opcionalmente aspecto y duración."
+guideline: "Llama a videogen directamente para video generativo. Espera su resultado de renderizado/descarga; solo afirma éxito de generación cuando devuelva una ruta exacta relativa al espacio de trabajo. Luego llama a workspace_present con esa ruta antes de enlazarla en Markdown. Nunca pegues una URL del proveedor ni una ruta del host."
+phase: "synthesis"

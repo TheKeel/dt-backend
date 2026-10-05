@@ -1,0 +1,6 @@
+short_description: "Busca en la web información actual o externa con citas."
+when_to_use: "Úsala cuando la base de conocimiento sea insuficiente o la tarea necesite eventos recientes, ejemplos del mundo real o referencias externas."
+input_format: "Consulta de búsqueda en lenguaje natural."
+guideline: "Prefiere la búsqueda web solo cuando la frescura o la cobertura externa importen."
+note: "Los resultados web pueden variar en calidad; verifica las afirmaciones antes de apoyarte en ellas."
+phase: "expansion"

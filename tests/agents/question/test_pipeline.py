@@ -169,7 +169,7 @@ def test_a_plan_with_no_templates_fails_and_a_short_one_proceeds(
         if valid_count == 0:
             with pytest.raises(RuntimeError) as exc:
                 await pipeline.run(**kwargs)
-            assert ("retry" if language == "en" else "重试") in str(exc.value)
+            assert "Reintenta" in str(exc.value)
         else:
             payload = await pipeline.run(**kwargs)
             assert payload["summary"]["success"] is True
@@ -848,11 +848,11 @@ def test_render_exploration_trace_walks_messages_in_order() -> None:
     # each header's index and assert ascending order.
     indices = []
     for marker in [
-        "Iteration 1 — Thought",
-        "Iteration 2 — Tool call: rag",
-        "Iteration 2 — Tool result (summarized): rag",
-        "Iteration 3 — Thought",
-        "Final exploration preface",
+        "Iteración 1 — Reflexión",
+        "Iteración 2 — Llamada a herramienta: rag",
+        "Iteración 2 — Resultado de herramienta (resumido): rag",
+        "Iteración 3 — Reflexión",
+        "Prefacio final de exploración",
     ]:
         idx = rendered.find(marker)
         assert idx != -1, f"missing trace section: {marker!r}\n--- rendered ---\n{rendered}"
@@ -1199,7 +1199,7 @@ def test_plan_starved_by_reasoning_is_asked_again_with_less_thinking() -> None:
     assert len(calls) == 2
     assert calls[0].get("reasoning_effort") is None
     assert calls[1]["reasoning_effort"] == RETRY_REASONING_EFFORT
-    assert any("reasoning" in event["message"].lower() for event in progress)
+    assert any("razonando" in event["message"].lower() for event in progress)
 
 
 def test_plan_that_answers_first_time_is_not_asked_twice() -> None:
@@ -1231,7 +1231,7 @@ def test_plan_still_empty_after_the_retry_fails_instead_of_returning_nothing() -
             )
         )
 
-    assert "retry" in str(exc.value).lower()
+    assert "reintenta" in str(exc.value).lower()
 
 
 # ---------------------------------------------------------------------------
@@ -1305,7 +1305,7 @@ def test_starved_repair_round_is_asked_again_with_less_thinking() -> None:
     assert calls[0].get("reasoning_effort") is None
     assert calls[1]["reasoning_effort"] == RETRY_REASONING_EFFORT
     assert payload["question"].startswith("State the chain rule")
-    assert any("reasoning" in event["message"].lower() for event in progress)
+    assert any("razonando" in event["message"].lower() for event in progress)
 
 
 def test_repair_that_answers_first_time_is_not_asked_twice() -> None:

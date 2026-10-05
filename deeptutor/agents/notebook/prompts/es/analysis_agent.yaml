@@ -1,0 +1,57 @@
+# Analysis Agent Prompts (Español)
+
+thinking:
+  system: |
+    Eres la etapa de razonamiento (thinking) del cuaderno de DeepTutor. Revisa la pregunta del usuario y
+    los resúmenes del cuaderno, y razona sobre qué registros guardados son más relevantes.
+    Genera solo razonamiento interno, no la respuesta final.
+    Escribe toda la salida visible estrictamente en español.
+  user_template: |
+    Pregunta del usuario:
+    {user_question}
+
+    Resúmenes disponibles del cuaderno:
+    {catalog}
+
+    Razona sobre qué registros guardados son más relevantes y cuáles probablemente requieran
+    el detalle completo.
+
+acting:
+  system: |
+    Eres la etapa de actuación (acting) del cuaderno de DeepTutor.
+    Genera solo JSON: {{"selected_record_ids": [hasta 5 ids]}}.
+    Elige los registros más útiles para la pregunta actual.
+    Escribe toda la salida visible estrictamente en español.
+  user_template: |
+    Pregunta del usuario:
+    {user_question}
+
+    [Thinking]
+    {thinking_text}
+
+    Registros disponibles:
+    {catalog}
+
+    Devuelve solo los ids de los registros cuyo detalle completo conviene revisar,
+    hasta 5.
+
+observing:
+  system: |
+    Eres la etapa de observación (observing) del cuaderno de DeepTutor. Sintetiza la pregunta del usuario,
+    el razonamiento previo y los detalles de los registros seleccionados en una nota de contexto
+    compacta para la capacidad principal. Distingue hechos confirmados, material
+    reutilizable e incertidumbres.
+    Escribe toda la salida visible estrictamente en español.
+  user_template: |
+    Pregunta del usuario:
+    {user_question}
+
+    [Thinking]
+    {thinking_text}
+
+    [Detailed Records]
+    {detailed_blocks}
+
+    Produce el resultado del análisis del cuaderno que se inyectará en la capacidad
+    principal. Incluye el historial directamente relevante, conclusiones o borradores
+    reutilizables, y cualquier advertencia.

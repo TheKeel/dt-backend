@@ -149,6 +149,57 @@ def _normalize_difficulty(raw: Any) -> str:
     return value if value in _DIFFICULTIES else ""
 
 
+def _srl_scaffolding() -> dict[str, str]:
+    """Estrategia SRL vigente del usuario actual, sin romper el turno.
+
+    Lee el perfil learner (donde update.py persiste estrategia_andamiaje)
+    y lo reduce a {estrategia, difficulty} vía la matriz. Cualquier fallo
+    (sin usuario, sin perfil, cuenta admin) devuelve el neutro Facilitador /
+    medium: la matriz manda cuando hay dato, nunca bloquea cuando no lo hay.
+    """
+    try:
+        from deeptutor.services.memory.srl import scaffolding_para_estrategia
+    except Exception:
+        return {"estrategia": "Medio (Facilitador)", "difficulty": "medium"}
+    try:
+        from deeptutor.multi_user.context import get_current_user
+        from deeptutor.multi_user.identity import get_learner_profile
+
+        user = get_current_user()
+        username = getattr(user, "username", "") or ""
+        if not username or username == "anonymous" or getattr(user, "is_admin", False):
+            raise ValueError("no learner in scope")
+        perfil = get_learner_profile(username) or {}
+        srl = perfil.get("srl_profile") or {}
+        return scaffolding_para_estrategia(srl.get("estrategia_andamiaje"))
+    except Exception:
+        try:
+            from deeptutor.services.memory.srl import scaffolding_para_estrategia as _sp
+
+            return _sp(None)
+        except Exception:
+            return {"estrategia": "Medio (Facilitador)", "difficulty": "medium"}
+
+
+def _resolve_difficulty(requested: Any) -> tuple[str, bool, dict[str, str]]:
+    """Dificultad autoritativa según la matriz SRL.
+
+    Devuelve (difficulty, enforced, scaffolding). `enforced` es True cuando
+    el valor pedido por el modelo se ignoró en favor de la matriz — incluso
+    si coincidían en texto, si el modelo lo pasó explícito se considera
+    override del motor para auditoría. Sin perfil SRL, medium neutro.
+    """
+    scaffolding = _srl_scaffolding()
+    authoritative = scaffolding.get("difficulty", "medium")
+    normalized = _normalize_difficulty(requested)
+    if not normalized:
+        # El modelo no pidió nada usable: se aplica la matriz sin marcar override.
+        return authoritative, False, scaffolding
+    if normalized == authoritative:
+        return authoritative, False, scaffolding
+    return authoritative, True, scaffolding
+
+
 def _question_bank_type(question_type: str) -> str:
     qtype = str(question_type or "").strip().lower()
     if qtype == "choice":
@@ -480,11 +531,12 @@ def _profile_status(progress: LearningProgress | None) -> dict[str, Any]:
     forgotten by the thirtieth knowledge point — which is exactly the failure
     intake exists to prevent.
     """
-    profile = getattr(progress, "learner_profile", None) if progress is not None else None
-    if profile is None or profile.is_empty():
+    scaffolding = _srl_scaffolding()
+    if progress is None or getattr(progress, "learner_profile", None) is None or progress.learner_profile.is_empty():
         return {
             "learner_profile": None,
             "intake_needed": True,
+            "scaffolding": scaffolding,
             "intake_instruction": (
                 "This learner has not been asked about themselves yet. Before "
                 "designing the outline, ask what they can already do, what "
@@ -494,6 +546,7 @@ def _profile_status(progress: LearningProgress | None) -> dict[str, Any]:
                 "materials yourself."
             ),
         }
+    profile = progress.learner_profile
     return {
         "learner_profile": {
             "prior_knowledge": profile.prior_knowledge,
@@ -504,6 +557,7 @@ def _profile_status(progress: LearningProgress | None) -> dict[str, Any]:
             "notes": profile.notes,
         },
         "intake_needed": False,
+        "scaffolding": scaffolding,
     }
 
 
@@ -880,8 +934,11 @@ class MasteryQuizTool(BaseTool):
                     name="difficulty",
                     type="string",
                     description=(
-                        "How hard this question is for this learner right now. "
-                        "Shown as a badge when they review the attempt later."
+                        "Optional hint only. The engine sets the real difficulty "
+                        "from the learner's SRL scaffolding matrix "
+                        "(mastery_status.scaffolding) and ignores a value "
+                        "outside it. Shown as a badge when they review the "
+                        "attempt later."
                     ),
                     required=False,
                     enum=list(_DIFFICULTIES),
@@ -928,6 +985,10 @@ class MasteryQuizTool(BaseTool):
                 content=f"Unknown objective {kp_id!r}; call mastery_status for valid ids.",
                 success=False,
             )
+        requested_raw = _normalize_difficulty(kwargs.get("difficulty"))
+        resolved_difficulty, enforced, scaffolding = _resolve_difficulty(
+            kwargs.get("difficulty")
+        )
         pending = PendingQuestion(
             question_id=uuid.uuid4().hex,
             knowledge_point_id=kp_id,
@@ -937,7 +998,7 @@ class MasteryQuizTool(BaseTool):
             expected_answer=expected,
             options=options,
             explanation=str(kwargs.get("explanation") or "").strip()[:2000],
-            difficulty=_normalize_difficulty(kwargs.get("difficulty")),
+            difficulty=resolved_difficulty,
         )
         from deeptutor.learning.service import MasteryInteractionError
 
@@ -1025,7 +1086,23 @@ class MasteryQuizTool(BaseTool):
                 "question to probe, then have the learner explain the idea in "
                 "their own words and record that with mastery_assess."
             )
+        if enforced:
+            notice += (
+                f" Note: difficulty {requested_raw!r} was overridden to "
+                f"{resolved_difficulty!r} by the SRL scaffolding matrix "
+                f"({scaffolding.get('estrategia')}). mastery_status.scaffolding "
+                "is authoritative — do not pass difficulty to steer level."
+            )
+            logger.info(
+                "mastery_quiz difficulty override requested=%r resolved=%r estrategia=%r",
+                requested_raw,
+                resolved_difficulty,
+                scaffolding.get("estrategia"),
+            )
 
+        payload["scaffolding"] = scaffolding
+        payload["difficulty_requested"] = requested_raw
+        payload["difficulty_enforced"] = enforced
         return ToolResult(
             content=notice,
             metadata={"mastery_quiz": payload, QUESTION_CARD_KEY: card},

@@ -14,7 +14,7 @@ import pytest
 from deeptutor.book.blocks._prompts import get_book_prompt, load_book_prompts
 
 VISUAL_BLOCKS = ("figure", "interactive", "animation")
-LANGUAGES = ("en", "zh")
+LANGUAGES = ("es",)
 
 # Every placeholder any of the three briefs might use.
 FILLERS = {
@@ -51,13 +51,13 @@ def test_the_brief_renders_with_and_without_a_focus(block: str, language: str) -
     assert "  " not in unfocused, "empty focus clause left a dangling space"
 
 
-def test_the_english_focus_clause_keeps_its_leading_space() -> None:
+def test_the_spanish_focus_clause_keeps_its_leading_space() -> None:
     """A YAML block scalar would strip it; the file uses a quoted scalar."""
-    clause = get_book_prompt(load_book_prompts("figure", "en"), "focus_clause")
-    assert clause.startswith(" "), "English clause must separate itself from the title"
+    clause = get_book_prompt(load_book_prompts("figure", "es"), "focus_clause")
+    assert clause.startswith(" "), "Spanish clause must separate itself from the title"
 
 
-def test_a_chinese_book_gets_a_chinese_brief() -> None:
-    zh = get_book_prompt(load_book_prompts("figure", "zh"), "brief")
-    assert any("一" <= ch <= "鿿" for ch in zh), "expected Chinese text"
-    assert "figure for the chapter" not in zh
+def test_a_spanish_book_gets_a_spanish_brief() -> None:
+    es = get_book_prompt(load_book_prompts("figure", "es"), "brief")
+    assert "figura" in es.lower(), "expected Spanish text"
+    assert "figure for the chapter" not in es

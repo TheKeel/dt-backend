@@ -43,7 +43,7 @@ class _PipelineWithoutSubmission:
 async def _run_visualize(
     monkeypatch: pytest.MonkeyPatch,
     *,
-    language: str = "en",
+    language: str = "es",
 ) -> tuple[list[StreamEvent], str]:
     """Run one visualize turn whose loop commits nothing.
 
@@ -101,17 +101,17 @@ async def test_local_provider_is_warned_up_front_and_diagnosed_on_failure(
     events, error = await _run_visualize(monkeypatch)
 
     warning = "".join(_warnings(events))
-    assert "Tool calling is disabled" in warning
+    assert "La llamada a herramientas está desactivada" in warning
     assert f"{_LOCAL_BINDING}/{_LOCAL_MODEL}" in warning
     # The warning must be actionable, not merely descriptive: it names the tool
     # that commits the canvas and the exact setting that enables it.
     assert "submit_visualization" in warning
-    assert "Tool calling → Supported" in warning
+    assert "Ajustes → Modelos → LLM → Capacidades → Llamada a herramientas → Admitido" in warning
 
     assert f"{_LOCAL_BINDING}/{_LOCAL_MODEL}" in error
     assert "submit_visualization" in error
     assert "LM Studio" in error
-    assert "Tool calling → Supported" in error
+    assert "Ajustes → Modelos → LLM → Capacidades → Llamada a herramientas → Admitido" in error
 
 
 @pytest.mark.asyncio
@@ -131,20 +131,20 @@ async def test_tool_capable_provider_keeps_the_generic_diagnosis(
     events, error = await _run_visualize(monkeypatch)
 
     assert _warnings(events) == []
-    assert error.startswith("The visualization agent finished without a valid canvas payload.")
-    assert "Settings → Capabilities → Visualize" in error
+    assert error.startswith("El agente de visualización terminó sin un contenido válido para el lienzo.")
+    assert "Ajustes → Capacidades → Visualizar" in error
 
 
 @pytest.mark.asyncio
-async def test_chinese_no_payload_diagnosis_names_the_localized_setting(
+async def test_spanish_no_payload_diagnosis_names_the_localized_setting(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     _use_llm_config(monkeypatch, "openai", "gpt-4o")
 
-    _, error = await _run_visualize(monkeypatch, language="zh")
+    _, error = await _run_visualize(monkeypatch, language="es")
 
-    assert "设置 → 能力 → 可视化" in error
-    assert "最大 token 数" in error
+    assert "Ajustes → Capacidades → Visualizar" in error
+    assert "Máx. tokens" in error
     assert "Max tokens" not in error
 
 
@@ -165,7 +165,7 @@ async def test_declaring_tool_support_clears_the_warning(
         set_catalog_capability_overrides([])
 
     assert _warnings(events) == []
-    assert error.startswith("The visualization agent finished without a valid canvas payload.")
+    assert error.startswith("El agente de visualización terminó sin un contenido válido para el lienzo.")
 
 
 @pytest.mark.asyncio
@@ -182,4 +182,4 @@ async def test_probe_failure_leaves_the_turn_alone(
     events, error = await _run_visualize(monkeypatch)
 
     assert _warnings(events) == []
-    assert error.startswith("The visualization agent finished without a valid canvas payload.")
+    assert error.startswith("El agente de visualización terminó sin un contenido válido para el lienzo.")

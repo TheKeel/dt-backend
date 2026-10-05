@@ -1,0 +1,17 @@
+short_description: "Pausa el bucle y haz al usuario de 1 a 4 preguntas aclaratorias en una tarjeta; cada pregunta tiene de 2 a 4 opciones clicables (etiqueta + descripción) más entrada de texto libre automática."
+when_to_use: "Solo cuando estés bloqueado en una decisión que genuinamente le corresponde al usuario — una que no puedas resolver a partir de la solicitud, la conversación, el material adjunto ni valores predeterminados sensatos (p. ej. el nivel/grado del usuario cambiaría la profundidad, el referente de la pregunta es ambiguo, o varios caminos razonables divergen materialmente). NO la llames para preguntar «¿procedo?», para confirmar lo que el usuario ya dijo, ni para opciones con una respuesta convencional obvia — elige esa respuesta, menciónala en tu respuesta y continúa. **Como máximo un `ask_user` por mensaje del asistente**: agrupa todas las aclaraciones en la lista `questions` de esa única llamada (hasta 4); nunca emitas múltiples llamadas `ask_user` en paralelo — las tarjetas duplicadas son un error, no redundancia."
+input_format: |
+  {"intro": "entradilla opcional de una línea", "questions": [
+    {"id": "audience", "header": "Público", "prompt": "¿Para quién es esta presentación?",
+     "options": [
+       {"label": "Ejecutivos (Recomendado)", "description": "Conclusiones primero, conciso"},
+       {"label": "Equipo de ingeniería", "description": "Detalle técnico e implementación"},
+       {"label": "Clientes externos", "description": "Propuesta de valor, visuales pulidos"}
+     ]},
+    {"id": "focus", "header": "Enfoque", "prompt": "¿Qué áreas debería cubrir?", "multi_select": true,
+     "options": [{"label": "Resultados"}, {"label": "Metodología"}, {"label": "Próximos pasos"}]}
+  ]}
+  Reglas: 2-4 opciones distintas y mutuamente excluyentes por pregunta — `label` corto (1-5 palabras), `description` explica lo que implica elegirla. Si recomiendas una opción, ponla PRIMERO y añade " (Recomendado)" a su etiqueta. Pon `multi_select: true` cuando las opciones puedan combinarse, y redacta la pregunta en consecuencia. `header` es una etiqueta de pestaña muy corta (máx. 12 caracteres). Nunca añadas tu propia opción «Otra» — la tarjeta ya ofrece entrada de texto libre automáticamente.
+guideline: "Tras esta llamada el bucle se **PAUSA** hasta que el usuario responda, y luego **CONTINÚA en el MISMO turno**. La respuesta del usuario aparece como el resultado correspondiente de la herramienta con contenido que empieza por ``User answered:`` seguido de una línea ``- <prompt>\\n  → <answer>`` por pregunta (las respuestas de selección múltiple llegan unidas por comas). Cuando veas eso, DEBES seguir atendiendo la solicitud original del usuario — llama a más herramientas si hace falta y termina con un ``FINISH`` sustantivo. **NO** trates ask_user como el fin del turno — un simple acuse de recibo no es una respuesta final aceptable."
+note: "Las preguntas omitidas llegan como ``(skipped)``. El usuario puede responder con texto libre en lugar de cualquier opción — trátalo como autoritativo. El usuario también puede cancelar la pausa con el botón de detener (cancela todo el turno)."
+phase: "exploration"

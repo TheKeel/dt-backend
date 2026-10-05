@@ -141,8 +141,8 @@ async def test_failed_report_section_names_unwritten_parts_without_provider_erro
     assert "## 1. Introduction" in content
     assert "## 2. First topic" in content
     assert "3. Second topic" in content
-    assert "4. Conclusion" in content
-    assert "1. Introduction, 2. First topic" not in content
+    assert "4. Conclusión" in content
+    assert "1. Introducción, 2. First topic" not in content
     assert "provider secret detail" not in content
     assert "RuntimeError: provider secret detail" in errors
     assert isinstance(failure.value.__cause__, RuntimeError)
@@ -236,7 +236,7 @@ async def test_report_retry_replays_reasoning_from_incomplete_attempt(
     assistant = next(message for message in requests[1] if message["role"] == "assistant")
     assert assistant["content"] == "``SECTION``\n## 2. Partial section"
     assert assistant["reasoning_content"] == "Plan the missing evidence."
-    assert "incomplete or invalid" in requests[1][-1]["content"]
+    assert "incompleta o era inválida" in requests[1][-1]["content"]
 
 
 async def test_report_step_rejects_empty_success_after_all_retries(

@@ -1,0 +1,6 @@
+short_description: "Lee el manual completo de una skill (SKILL.md) o un archivo de referencia dentro del paquete de la skill."
+when_to_use: "Cuando la tarea actual coincida con una skill listada en la sección Skills de tus instrucciones. Lee la skill ANTES de intentar la tarea y sigue sus instrucciones."
+input_format: "`name` — nombre de la skill exactamente como aparece listado. `file` opcional — ruta dentro del paquete (p. ej. `references/api.md`); por defecto SKILL.md."
+guideline: "Lee como máximo las skills relevantes para la tarea en cuestión. Si SKILL.md enlaza a un archivo de references/ para la variante que necesitas, lee también ese archivo antes de actuar."
+note: "Las skills marcadas como `(unavailable: ...)` en el manifiesto no pueden ayudar hasta que se cumplan sus requisitos — dilo en lugar de adivinar."
+phase: "exploration"

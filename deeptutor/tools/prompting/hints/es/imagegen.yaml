@@ -1,0 +1,5 @@
+short_description: "Genera imágenes originales con el servicio de generación de imágenes configurado y guárdalas en outputs/ del espacio de trabajo activo."
+when_to_use: "Úsala para solicitudes visuales generativas como ilustraciones, arte, imágenes conceptuales, carteles o escenas fotorrealistas. Usa exec para gráficos programáticos, diagramas o post-procesamiento de imágenes."
+input_format: "Un prompt vívido y autocontenido; opcionalmente tamaño y n (1-4)."
+guideline: "Llama a imagegen directamente para medios visuales originales. Guarda los archivos y devuelve rutas exactas relativas al espacio de trabajo, pero no los presenta automáticamente. Llama a workspace_present con cada ruta devuelta antes de copiar esa ruta en Markdown. No expongas URLs del proveedor ni rutas del sistema de archivos del host."
+phase: "synthesis"

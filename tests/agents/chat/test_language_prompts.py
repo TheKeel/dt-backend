@@ -1,3 +1,10 @@
+"""Spanish-only prompt language tests for the chat loop.
+
+The system is Spanish-only: ``normalize_language`` maps every input locale
+to ``"es"``, so ``en``/``zh`` inputs produce the same Spanish scaffolding.
+These tests pin that behaviour.
+"""
+
 from __future__ import annotations
 
 from types import SimpleNamespace
@@ -27,7 +34,7 @@ def _fake_llm_config(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("deeptutor.agents.base_agent.get_llm_config", lambda: cfg)
 
 
-@pytest.mark.parametrize("language", ["en", "zh"])
+@pytest.mark.parametrize("language", ["es", "en", "zh"])
 @pytest.mark.parametrize("mode", ["chat", "immersive_reading", "mastery_path"])
 def test_tool_call_limit_reaches_each_loop_prompt(language: str, mode: str) -> None:
     pipeline_type = MasteryLoopPipeline if mode == "mastery_path" else AgenticChatPipeline
@@ -38,14 +45,10 @@ def test_tool_call_limit_reaches_each_loop_prompt(language: str, mode: str) -> N
     assert MAX_PARALLEL_TOOL_CALLS == 15
     assert prompt.count("## tool_call_policy\n") == 1
     assert "{limit}" not in prompt
-    if language == "zh":
-        assert "最多请求 15 次工具调用" in prompt
-        assert "不是用户整个请求的总次数" in prompt
-        assert "超出上限的调用不会执行" in prompt
-    else:
-        assert "at most 15 tool calls" in prompt
-        assert "not a total for the user's request" in prompt
-        assert "Calls beyond the limit\nare not executed" in prompt
+    # Spanish-only: every locale renders the same Spanish policy text.
+    assert "como máximo 15 llamadas a herramientas" in prompt
+    assert "límite por ronda" in prompt
+    assert "no se ejecutan" in prompt
 
 
 def test_agentic_chat_final_prompt_uses_selected_language(
@@ -66,14 +69,11 @@ def test_agentic_chat_final_prompt_uses_selected_language(
     zh_prompt = AgenticChatPipeline(language="zh")._build_system_prompt([], ctx)
     en_prompt = AgenticChatPipeline(language="en")._build_system_prompt([], ctx)
 
-    # Prompt blocks are phase-specific, but the shared language directive
-    # still runs at the end, so per-language imperatives must surface.
-    assert "请严格使用中文" in zh_prompt
-    assert "Write ALL reader-facing text" in en_prompt
-    # Persona phrasing differs by language so the prompts are not just
-    # English text with a Chinese tail appended.
-    assert "你是 DeepTutor" in zh_prompt
-    assert "You are DeepTutor" in en_prompt
+    # Spanish-only: both locales carry the Spanish directive and persona.
+    assert "Write ALL reader-facing text strictly in Español" in zh_prompt
+    assert "Write ALL reader-facing text strictly in Español" in en_prompt
+    assert "Eres DeepTutor" in zh_prompt
+    assert "Eres DeepTutor" in en_prompt
 
 
 def test_mastery_plugin_system_prompt_uses_localized_fallback(
@@ -95,9 +95,9 @@ def test_mastery_plugin_system_prompt_uses_localized_fallback(
     en_prompt = AgenticChatPipeline(language="en")._build_system_prompt([], ctx)
 
     assert "## mastery_tutor" in zh_prompt
-    assert "掌握式导师" in zh_prompt
+    assert "tutor personal de dominio" in zh_prompt
     assert "## mastery_tutor" in en_prompt
-    assert "mastery tutor" in en_prompt
+    assert "tutor personal de dominio" in en_prompt
 
 
 def test_ask_questions_plugin_system_prompt_uses_localized_fallback(
@@ -119,37 +119,36 @@ def test_ask_questions_plugin_system_prompt_uses_localized_fallback(
     en_prompt = AgenticChatPipeline(language="en")._build_system_prompt([], ctx)
 
     assert "## ask_questions" in zh_prompt
-    assert "主动提问模式" in zh_prompt
-    assert "必须以一次 `ask_user` 调用开始" in zh_prompt
-    assert "第 2、3、10 轮" in zh_prompt
-    assert "此前所有对话" in zh_prompt
+    assert "Modo de Preguntas" in zh_prompt
+    assert "llamando a `ask_user` exactamente una vez" in zh_prompt
+    assert "segundo, tercero, décimo" in zh_prompt
+    assert "todo el contexto disponible" in zh_prompt
     assert "## ask_questions" in en_prompt
-    assert "Ask Questions mode" in en_prompt
-    assert "second, third, tenth" in en_prompt
-    assert "calling `ask_user` exactly once" in en_prompt
+    assert "Modo de Preguntas" in en_prompt
+    assert "llamando a `ask_user` exactamente una vez" in en_prompt
 
 
 def test_prompt_blocks_include_localized_optional_context() -> None:
     from deeptutor.core.context import UnifiedContext
 
     prompts = {
-        "general": "通用",
-        "runtime_policy": "策略",
+        "general": "General",
+        "runtime_policy": "Política",
         "loop": {
-            "system": "循环",
-            "user": "用户说：{user_message}",
-            "finish_exhausted": "预算已用完，请直接回答。",
+            "system": "Bucle",
+            "user": "El usuario dice: {user_message}",
+            "finish_exhausted": "Presupuesto agotado, responde directamente.",
         },
     }
     ctx = UnifiedContext(
-        user_message="解释光合作用",
-        sidebar_context="[选中内容]\n把代码和静态数据加载进内存",
-        persona_context="用苏格拉底式提问",
-        memory_context="学生喜欢例子",
+        user_message="Explica la fotosíntesis",
+        sidebar_context="[contenido seleccionado]\nCarga el código y los datos estáticos en memoria",
+        persona_context="Usa preguntas socráticas",
+        memory_context="Al estudiante le gustan los ejemplos",
     )
-    assembler = ChatPromptAssembler(prompts=prompts, language="zh")
+    assembler = ChatPromptAssembler(prompts=prompts, language="es")
 
-    blocks = assembler.blocks(context=ctx, tool_manifest="", workspace_note="工作区可用")
+    blocks = assembler.blocks(context=ctx, tool_manifest="", workspace_note="Espacio de trabajo disponible")
 
     names = [block.name for block in blocks]
     assert names[:4] == ["general", "runtime_context", "runtime_policy", "loop"]
@@ -157,8 +156,8 @@ def test_prompt_blocks_include_localized_optional_context() -> None:
     assert "persona_style" in names
     assert "memory" in names
     assert "workspace" in names
-    assert assembler.user_message(context=ctx) == "用户说：解释光合作用"
-    assert assembler.finish_exhausted_instruction() == "预算已用完，请直接回答。"
+    assert assembler.user_message(context=ctx) == "El usuario dice: Explica la fotosíntesis"
+    assert assembler.finish_exhausted_instruction() == "Presupuesto agotado, responde directamente."
     system_prompt = assembler.render(blocks)
     assert "## sidebar_tutor_context" in system_prompt
-    assert "把代码和静态数据加载进内存" in system_prompt
+    assert "Carga el código y los datos estáticos en memoria" in system_prompt

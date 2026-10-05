@@ -1,0 +1,6 @@
+short_description: "Busca en una biblioteca de Zotero referencias ya guardadas por el usuario."
+when_to_use: "Úsala cuando el usuario pida un ítem de su biblioteca de Zotero o pregunte si existe una referencia guardada. Omítela para búsquedas públicas web o de arXiv."
+input_format: "`query` más el `user_id` numérico de Zotero. Incluye `api_key` solo cuando el usuario proporcione una para una biblioteca privada."
+guideline: "No inventes un user_id ni una API key. Si falta cualquiera de los dos, pide primero el user_id; menciona que el ID está en la configuración de la cuenta de Zotero."
+note: "Búsqueda de solo lectura en Zotero Web API v3; devuelve como máximo 25 referencias."
+phase: "expansion"

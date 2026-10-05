@@ -163,43 +163,43 @@ class TestManifestNote:
         kb_dir = _kb(tmp_path, "a.pdf", "notes/week3.md")
         manifest = build_manifest(name="Course", kb_dir=kb_dir, entry=_READY)
 
-        note = render_manifest_note([manifest], language="en")
+        note = render_manifest_note([manifest], language="es")
 
-        assert "2 documents" in note
+        assert "2 documentos" in note
         assert "notes/week3.md" in note
         # C: retrieval must never be the basis for a count.
-        assert "must never be used to infer how many documents" in note
+        assert "nunca deben usarse para inferir cuántos documentos" in note
         assert "kb_files" in note
 
     def test_note_is_localised(self, tmp_path: Path) -> None:
         kb_dir = _kb(tmp_path, "a.pdf")
         manifest = build_manifest(name="Course", kb_dir=kb_dir, entry=_READY)
 
-        note = render_manifest_note([manifest], language="zh")
+        note = render_manifest_note([manifest], language="es")
 
-        assert "共 1 个文档" in note
-        assert "以本清单为准" in note
+        assert "1 documento" in note
+        assert "es autoritativo" in note
 
     def test_note_warns_when_the_index_is_not_ready(self, tmp_path: Path) -> None:
         kb_dir = _kb(tmp_path, "a.pdf")
         entry = {"rag_provider": "llamaindex", "status": "needs_reindex"}
 
         note = render_manifest_note(
-            [build_manifest(name="Course", kb_dir=kb_dir, entry=entry)], language="en"
+            [build_manifest(name="Course", kb_dir=kb_dir, entry=entry)], language="es"
         )
 
-        assert "needs reindexing" in note
+        assert "necesita reindexar" in note
 
     def test_note_mentions_the_omitted_tail(self, tmp_path: Path) -> None:
         kb_dir = _kb(tmp_path, *(f"doc{index:02d}.pdf" for index in range(5)))
         manifest = build_manifest(name="Course", kb_dir=kb_dir, entry=_READY, limit=2)
 
-        note = render_manifest_note([manifest], language="en")
+        note = render_manifest_note([manifest], language="es")
 
-        assert "3 more" in note
+        assert "y 3 más" in note
 
     def test_no_manifests_yields_no_block(self) -> None:
-        assert render_manifest_note([], language="en") == ""
+        assert render_manifest_note([], language="es") == ""
 
 
 class TestManifestReport:
@@ -207,30 +207,30 @@ class TestManifestReport:
         kb_dir = _kb(tmp_path, "a.pdf")
         manifest = build_manifest(name="Course", kb_dir=kb_dir, entry=_READY)
 
-        report = render_manifest_report(manifest, language="en")
+        report = render_manifest_report(manifest, language="es")
 
-        assert "1 document." in report
+        assert "1 documento." in report
         assert "1. a.pdf (2.0 KB)" in report
 
     def test_report_states_a_pattern_matched_nothing(self, tmp_path: Path) -> None:
         kb_dir = _kb(tmp_path, "a.pdf")
         manifest = build_manifest(name="Course", kb_dir=kb_dir, entry=_READY, pattern="zzz")
 
-        report = render_manifest_report(manifest, language="en")
+        report = render_manifest_report(manifest, language="es")
 
-        assert 'No document name matches "zzz"' in report
+        assert 'Ningún nombre de documento coincide con "zzz"' in report
 
     def test_report_declares_a_remote_kb_unlistable(self, tmp_path: Path) -> None:
         entry = {"type": "lightrag_server"}
         manifest = build_manifest(name="Remote", kb_dir=tmp_path / "Remote", entry=entry)
 
-        report = render_manifest_report(manifest, language="en")
+        report = render_manifest_report(manifest, language="es")
 
-        assert "remote server" in report
+        assert "servidor remoto" in report
         assert "0" not in report
 
     def test_report_of_an_empty_kb_says_so(self, tmp_path: Path) -> None:
         kb_dir = _kb(tmp_path)
         manifest = build_manifest(name="Course", kb_dir=kb_dir, entry=_READY)
 
-        assert "no documents" in render_manifest_report(manifest, language="en")
+        assert "no tiene documentos" in render_manifest_report(manifest, language="es")

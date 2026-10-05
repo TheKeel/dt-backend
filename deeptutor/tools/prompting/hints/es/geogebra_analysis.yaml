@@ -1,0 +1,6 @@
+short_description: "Analiza una imagen de un problema matemático y genera comandos de GeoGebra validados para visualización geométrica."
+when_to_use: "Úsala cuando el usuario suba una imagen de geometría o un diagrama matemático y quiera reconstruir la figura, visualizarla o interactuar con ella en GeoGebra."
+input_format: "El texto del problema matemático (pregunta). La imagen se inyecta automáticamente desde los adjuntos."
+guideline: "Invoca esta herramienta solo cuando haya una imagen adjunta y el problema involucre figuras geométricas. La herramienta ejecuta un pipeline completo de 4 etapas (detección → análisis → generación de script → reflexión) y devuelve comandos de GeoGebra listos para renderizar. Cuando el resultado contenga un bloque cercado ```ggbscript[…]```, copia ese bloque completo literalmente en tu respuesta final para que la superficie de chat pueda renderizar la figura interactiva."
+note: "El pipeline requiere un LLM con capacidad de visión. El procesamiento puede tardar 15-30 segundos por las cuatro llamadas secuenciales al LLM."
+phase: "exploration"

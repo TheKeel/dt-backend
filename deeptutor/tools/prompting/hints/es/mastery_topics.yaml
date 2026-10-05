@@ -1,0 +1,6 @@
+short_description: "Lista los temas de Ruta de Dominio del estudiante — progreso, repasos pendientes, conversaciones y el esquema de lecciones de cada uno."
+when_to_use: "Siempre que el estudiante se refiera a algo que está estudiando en lugar de preguntar sobre ello: «repásame la lección 1 del curso de estadística», «¿en qué estoy a medias?», «evalúame en la ruta de ML». Llama siempre antes que las otras herramientas de navegación mastery_* para convertir lo que dijo en ids reales."
+input_format: "{} para todo, o {\"query\": \"estadística\"} para filtrar por nombre de tema, objetivo o nombre de lección."
+guideline: "Las propias palabras del estudiante suelen ser una referencia difusa a un tema y a menudo a una lección dentro de él; así es como resuelves ambas. No ofrezcas enseñar el tema aquí — el chat no tiene mapa, ni esquema ni compuerta. Resuelve y luego deriva con mastery_open_session / mastery_new_session."
+note: "Solo lectura, y solo se monta cuando el estudiante tiene al menos un tema. Nunca se monta junto a `mastery_paths` (un turno de tutoría lee su atlas a través de esa en su lugar)."
+phase: "exploration"

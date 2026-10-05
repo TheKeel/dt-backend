@@ -1,0 +1,3 @@
+generate_ideas:
+  system: "Genera ideas variadas de preguntas alineadas con el tema y las restricciones del usuario."
+  user: "Tema: {topic}"

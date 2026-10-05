@@ -1,0 +1,6 @@
+short_description: "Carga Herramientas Extendidas (p. ej. herramientas de servidores MCP) para que puedan llamarse en esta sesión."
+when_to_use: "Cuando la tarea necesite una herramienta de la sección Herramientas Extendidas que aún no esté cargada. Llamar a una herramienta extendida sin cargarla primero fallará."
+input_format: "`names` — arreglo de nombres exactos de herramientas de la sección Herramientas Extendidas."
+guideline: "Carga solo las herramientas que necesite la tarea actual — no toda la lista. Una vez cargada, la herramienta queda disponible el resto de la sesión; no la recargues."
+note: "Si un nombre resulta desconocido, revisa la ortografía exacta en la sección Herramientas Extendidas."
+phase: "exploration"
