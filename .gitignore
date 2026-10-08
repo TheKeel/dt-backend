@@ -27,6 +27,7 @@ data/
 *.pdf
 !tests/fixtures/lightrag_bridge/original.pdf
 !tests/fixtures/lightrag_bridge/mineru-v2-current/*_origin.pdf
+!entrenamiento/logica-matematica/*.pdf
 
 # ============================================
 # Python Related
